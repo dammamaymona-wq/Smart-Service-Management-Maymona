@@ -1,0 +1,3 @@
+@model IEnumerable<SmartServiceManagement.Models.Notification>
+@{ ViewData["Title"] = "الإشعارات"; }
+<div class="container-fluid p-4" dir="rtl"><h2 class="mb-4">إشعارات مزود الخدمة</h2><div class="list-group">@foreach(var n in Model){<div class="list-group-item @(n.IsRead ? "" : "list-group-item-primary")"><div class="d-flex justify-content-between"><strong>@n.Title</strong><small>@n.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</small></div><p class="mb-2">@n.Message</p>@if(!n.IsRead){<form asp-action="MarkAsRead" method="post"><input type="hidden" name="id" value="@n.NotificationId"/><button class="btn btn-sm btn-outline-primary">تحديد كمقروء</button></form>}</div>}@if(!Model.Any()){<div class="alert alert-light">لا توجد إشعارات.</div>}</div></div>

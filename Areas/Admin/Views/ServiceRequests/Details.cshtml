@@ -1,0 +1,647 @@
+﻿@model SmartServiceManagement.Models.ServiceRequest
+
+@{
+    ViewData["Title"] = "تفاصيل طلب الخدمة";
+
+    string statusText = Model.Status switch
+    {
+        SmartServiceManagement.Models.Enums.RequestStatus.Pending => "معلقة",
+        SmartServiceManagement.Models.Enums.RequestStatus.Accepted => "مقبولة",
+        SmartServiceManagement.Models.Enums.RequestStatus.InProgress => "قيد التنفيذ",
+        SmartServiceManagement.Models.Enums.RequestStatus.Completed => "مكتملة",
+        SmartServiceManagement.Models.Enums.RequestStatus.Cancelled => "ملغاة",
+        _ => "غير معروف"
+    };
+
+    string statusClass = Model.Status switch
+    {
+        SmartServiceManagement.Models.Enums.RequestStatus.Pending => "bg-warning text-dark",
+        SmartServiceManagement.Models.Enums.RequestStatus.Accepted => "bg-primary",
+        SmartServiceManagement.Models.Enums.RequestStatus.InProgress => "bg-info text-dark",
+        SmartServiceManagement.Models.Enums.RequestStatus.Completed => "bg-success",
+        SmartServiceManagement.Models.Enums.RequestStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    string statusIcon = Model.Status switch
+    {
+        SmartServiceManagement.Models.Enums.RequestStatus.Pending => "fa-clock",
+        SmartServiceManagement.Models.Enums.RequestStatus.Accepted => "fa-check",
+        SmartServiceManagement.Models.Enums.RequestStatus.InProgress => "fa-spinner",
+        SmartServiceManagement.Models.Enums.RequestStatus.Completed => "fa-circle-check",
+        SmartServiceManagement.Models.Enums.RequestStatus.Cancelled => "fa-times",
+        _ => "fa-question"
+    };
+}
+
+
+<!-- Page Header -->
+<div class="content-header">
+
+    <div class="container-fluid">
+
+        <div class="row mb-2 align-items-center">
+
+            <div class="col-sm-6">
+
+                <h1 class="m-0 text-white fw-bold">
+
+                    <i class="fas fa-file-lines me-2"></i>
+
+                    تفاصيل طلب الخدمة
+
+                </h1>
+
+            </div>
+
+
+            <div class="col-sm-6 text-end">
+
+                <a asp-area="Admin"
+                   asp-controller="ServiceRequests"
+                   asp-action="Edit"
+                   asp-route-id="@Model.RequestId"
+                   class="btn btn-warning text-dark shadow-sm me-1">
+
+                    <i class="fas fa-edit me-1"></i>
+
+                    تعديل الحالة
+
+                </a>
+
+
+                <a asp-area="Admin"
+                   asp-controller="ServiceRequests"
+                   asp-action="Index"
+                   class="btn btn-secondary shadow-sm">
+
+                    <i class="fas fa-arrow-right me-1"></i>
+
+                    العودة للطلبات
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<section class="content">
+
+    <div class="container-fluid">
+
+
+        <div class="row">
+
+
+            <!-- Request Information -->
+            <div class="col-xl-8">
+
+
+                <div class="card card-outline card-primary shadow-sm h-100">
+
+
+                    <!-- Card Header -->
+                    <div class="card-header">
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <h3 class="card-title text-white fw-bold">
+
+                                <i class="fas fa-clipboard-list me-2"></i>
+
+                                معلومات الطلب
+
+                            </h3>
+
+
+                            <span class="badge @statusClass px-3 py-2">
+
+                                <i class="fas @statusIcon me-1"></i>
+
+                                @statusText
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Card Body -->
+                    <div class="card-body">
+
+
+                        <!-- Request Number -->
+                        <div class="row mb-3">
+
+                            <div class="col-md-6">
+
+                                <div class="bg-dark rounded p-3">
+
+                                    <small class="text-white-50 d-block mb-1">
+                                        رقم الطلب
+                                    </small>
+
+                                    <span class="fw-bold text-white">
+
+                                        #@Model.RequestId
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Status -->
+                            <div class="col-md-6">
+
+                                <div class="bg-dark rounded p-3">
+
+                                    <small class="text-white-50 d-block mb-1">
+                                        حالة الطلب
+                                    </small>
+
+                                    <span class="badge @statusClass px-3 py-2">
+
+                                        <i class="fas @statusIcon me-1"></i>
+
+                                        @statusText
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Dates -->
+                        <div class="row mb-3">
+
+
+                            <!-- Request Date -->
+                            <div class="col-md-6">
+
+                                <div class="bg-dark rounded p-3">
+
+                                    <small class="text-white-50 d-block mb-2">
+
+                                        تاريخ تقديم الطلب
+
+                                    </small>
+
+
+                                    <span class="fw-semibold text-white">
+
+                                        <i class="far fa-calendar text-primary me-1"></i>
+
+                                        @Model.RequestDate.ToString("dd/MM/yyyy")
+
+                                    </span>
+
+
+                                    <span class="text-white-50 ms-1">
+
+                                        @Model.RequestDate.ToString("hh:mm tt")
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Preferred Date -->
+                            <div class="col-md-6">
+
+                                <div class="bg-dark rounded p-3">
+
+                                    <small class="text-white-50 d-block mb-2">
+
+                                        التاريخ المفضل
+
+                                    </small>
+
+
+                                    @if (Model.PreferredDate.HasValue)
+                                    {
+                                        <span class="fw-semibold text-white">
+
+                                            <i class="far fa-calendar-check text-success me-1"></i>
+
+                                            @Model.PreferredDate.Value.ToString("dd/MM/yyyy")
+
+                                        </span>
+
+
+                                        <span class="text-white-50 ms-1">
+
+                                            @Model.PreferredDate.Value.ToString("hh:mm tt")
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-white-50">
+
+                                            لم يتم تحديد تاريخ
+
+                                        </span>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Updated + Completed -->
+                        <div class="row mb-3">
+
+
+                            <!-- Updated At -->
+                            <div class="col-md-6">
+
+                                <div class="bg-dark rounded p-3">
+
+                                    <small class="text-white-50 d-block mb-2">
+
+                                        آخر تحديث
+
+                                    </small>
+
+
+                                    @if (Model.UpdatedAt.HasValue)
+                                    {
+                                        <span class="fw-semibold text-white">
+
+                                            <i class="fas fa-clock text-warning me-1"></i>
+
+                                            @Model.UpdatedAt.Value.ToString("dd/MM/yyyy hh:mm tt")
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-white-50">
+
+                                            لم يتم تحديث الطلب
+
+                                        </span>
+                                    }
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Completed -->
+                            <div class="col-md-6">
+
+                                <div class="bg-dark rounded p-3">
+
+                                    <small class="text-white-50 d-block mb-2">
+
+                                        حالة الإنجاز
+
+                                    </small>
+
+
+                                    @if (Model.IsCompleted)
+                                    {
+                                        <span class="text-success fw-semibold">
+
+                                            <i class="fas fa-circle-check me-1"></i>
+
+                                            تم إكمال الطلب
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-white-50 fw-semibold">
+
+                                            <i class="fas fa-hourglass-half me-1"></i>
+
+                                            لم يكتمل الطلب بعد
+
+                                        </span>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Problem Description -->
+                        <div class="mb-3">
+
+                            <div class="bg-dark rounded p-3">
+
+                                <small class="text-white-50 d-block mb-2">
+
+                                    وصف المشكلة
+
+                                </small>
+
+
+                                @if (!string.IsNullOrWhiteSpace(Model.ProblemDescription))
+                                {
+                                    <p class="text-white mb-0"
+                                       style="line-height:1.8;">
+
+                                        @Model.ProblemDescription
+
+                                    </p>
+                                }
+                                else
+                                {
+                                    <span class="text-white-50">
+
+                                        لا يوجد وصف للمشكلة.
+
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Customer Address -->
+                        <div>
+
+                            <div class="bg-dark rounded p-3">
+
+                                <small class="text-white-50 d-block mb-2">
+
+                                    عنوان العميل
+
+                                </small>
+
+
+                                @if (!string.IsNullOrWhiteSpace(Model.CustomerAddress))
+                                {
+                                    <span class="fw-semibold text-white">
+
+                                        <i class="fas fa-location-dot text-danger me-2"></i>
+
+                                        @Model.CustomerAddress
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-white-50">
+
+                                        لم يتم تحديد العنوان.
+
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Customer + Service -->
+            <div class="col-xl-4">
+
+
+                <!-- Customer Card -->
+                <div class="card card-outline card-primary shadow-sm mb-4">
+
+
+                    <div class="card-header">
+
+                        <h3 class="card-title text-white fw-bold">
+
+                            <i class="fas fa-user me-2"></i>
+
+                            معلومات العميل
+
+                        </h3>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+
+                        <div class="text-center mb-3">
+
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                                 style="width:80px;height:80px;">
+
+                                <i class="fas fa-user fa-2x"></i>
+
+                            </div>
+
+                        </div>
+
+
+                        <h5 class="fw-bold text-white text-center mb-3">
+
+                            @(Model.Customer?.FullName ?? "غير معروف")
+
+                        </h5>
+
+
+                        <div class="border-top border-secondary pt-3">
+
+
+                            <!-- Email -->
+                            <div class="mb-3">
+
+                                <small class="text-white-50 d-block mb-1">
+
+                                    البريد الإلكتروني
+
+                                </small>
+
+                                <span class="fw-semibold text-white">
+
+                                    <i class="fas fa-envelope text-primary me-2"></i>
+
+                                    @(Model.Customer?.Email ?? "غير متوفر")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- Phone -->
+                            <div class="mb-3">
+
+                                <small class="text-white-50 d-block mb-1">
+
+                                    رقم الهاتف
+
+                                </small>
+
+                                <span class="fw-semibold text-white">
+
+                                    <i class="fas fa-phone text-success me-2"></i>
+
+                                    @(Model.Customer?.PhoneNumber ?? "غير متوفر")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- Address -->
+                            <div>
+
+                                <small class="text-white-50 d-block mb-1">
+
+                                    عنوان الحساب
+
+                                </small>
+
+                                <span class="fw-semibold text-white">
+
+                                    <i class="fas fa-location-dot text-danger me-2"></i>
+
+                                    @(Model.Customer?.Address ?? "غير متوفر")
+
+                                </span>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Service Card -->
+                <div class="card card-outline card-primary shadow-sm">
+
+
+                    <div class="card-header">
+
+                        <h3 class="card-title text-white fw-bold">
+
+                            <i class="fas fa-screwdriver-wrench me-2"></i>
+
+                            معلومات الخدمة
+
+                        </h3>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+
+                        <h5 class="fw-bold text-white mb-3">
+
+                            @(Model.Service?.ServiceName ?? "غير معروف")
+
+                        </h5>
+
+
+                        @if (Model.Service != null)
+                        {
+                            <p class="text-white-50"
+                               style="line-height:1.7;">
+
+                                @Model.Service.Description
+
+                            </p>
+
+
+                            <div class="border-top border-secondary pt-3">
+
+
+                                <!-- Price -->
+                                <div class="d-flex justify-content-between mb-3">
+
+                                    <span class="text-white-50">
+
+                                        السعر
+
+                                    </span>
+
+                                    <span class="fw-bold text-success">
+
+                                        @Model.Service.Price.ToString("0.00")
+
+                                    </span>
+
+                                </div>
+
+
+                                <!-- Duration -->
+                                <div class="d-flex justify-content-between mb-3">
+
+                                    <span class="text-white-50">
+
+                                        مدة الخدمة
+
+                                    </span>
+
+                                    <span class="fw-semibold text-white">
+
+                                        @Model.Service.EstimatedDuration دقيقة
+
+                                    </span>
+
+                                </div>
+
+
+                                <!-- Category -->
+                                <div class="d-flex justify-content-between">
+
+                                    <span class="text-white-50">
+
+                                        التصنيف
+
+                                    </span>
+
+                                    <span class="fw-semibold text-white">
+
+                                        @(Model.Service.Category?.CategoryName ?? "غير محدد")
+
+                                    </span>
+
+                                </div>
+
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+</section>

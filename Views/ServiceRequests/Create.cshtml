@@ -1,0 +1,314 @@
+﻿@model SmartServiceManagement.Models.ServiceRequest
+
+@{
+    ViewData["Title"] = "طلب خدمة";
+}
+
+<style>
+    .service-request-page {
+        direction: rtl;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .service-page-title {
+        color: #212529;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+    }
+
+    .service-page-subtitle {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .service-card {
+        border: 0;
+        border-radius: 7px;
+        background-color: #fff;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        overflow: hidden;
+    }
+
+    .service-card-header {
+        background-color: #fff;
+        border-bottom: 1px solid #dee2e6;
+        padding: 1rem 1.25rem;
+    }
+
+    .service-card-title {
+        color: #212529;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+        .service-card-title i,
+        .service-page-title i {
+            color: #0d6efd;
+        }
+
+    .service-form-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #212529;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+        .service-form-label i {
+            color: #0d6efd;
+        }
+
+        .service-form-label.address-label i {
+            color: #dc3545;
+        }
+
+    .service-request-page .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        min-height: 40px;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.9rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+        .service-request-page .form-control:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+    .service-request-page textarea.form-control {
+        min-height: auto;
+        resize: vertical;
+        line-height: 1.8;
+    }
+
+    .service-help-text {
+        color: #6c757d;
+        font-size: 0.75rem;
+        margin-top: 0.4rem;
+    }
+
+    .service-actions {
+        border-top: 1px solid #f0f0f0;
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+
+        .service-actions .btn {
+            border-radius: 5px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.55rem 1rem;
+        }
+
+        .service-actions .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+            .service-actions .btn-primary:hover {
+                background-color: #0b5ed7;
+                border-color: #0a58ca;
+            }
+
+        .service-actions .btn-light {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            color: #212529;
+        }
+
+            .service-actions .btn-light:hover {
+                background-color: #e2e6ea;
+            }
+
+    .service-request-page .alert {
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+
+    .service-request-page .text-danger {
+        font-size: 0.8rem;
+        margin-top: 0.35rem;
+    }
+</style>
+
+<div class="service-request-page">
+    <div class="container-fluid px-3 px-md-4 px-xl-5 py-4">
+
+        @* رسالة نجاح *@
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm d-flex align-items-center gap-2"
+                 role="alert">
+
+                <i class="fas fa-check-circle"></i>
+
+                <span>
+                    @TempData["SuccessMessage"]
+                </span>
+
+                <button type="button"
+                        class="btn-close ms-auto"
+                        data-bs-dismiss="alert"
+                        aria-label="إغلاق">
+                </button>
+            </div>
+        }
+
+        @* رسالة خطأ *@
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm d-flex align-items-center gap-2"
+                 role="alert">
+
+                <i class="fas fa-exclamation-circle"></i>
+
+                <span>
+                    @TempData["ErrorMessage"]
+                </span>
+
+                <button type="button"
+                        class="btn-close ms-auto"
+                        data-bs-dismiss="alert"
+                        aria-label="إغلاق">
+                </button>
+            </div>
+        }
+
+        @* عنوان الصفحة *@
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="service-page-title mb-1">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    طلب خدمة
+                </h2>
+
+                <p class="service-page-subtitle mb-0">
+                    قم بتعبئة البيانات لإرسال طلب الخدمة
+                </p>
+            </div>
+        </div>
+
+        @* بطاقة الطلب *@
+        <div class="service-card">
+
+            <div class="service-card-header">
+                <h5 class="service-card-title">
+                    <i class="fas fa-file-signature me-2"></i>
+                    بيانات الطلب
+                </h5>
+            </div>
+
+            <div class="card-body p-4">
+
+                <form asp-action="Create" method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+                    @* يبقى ServiceId كما هو *@
+                    <input type="hidden" asp-for="ServiceId" />
+
+                    @* التاريخ المفضل *@
+                    <div class="mb-4">
+                        <label asp-for="PreferredDate"
+                               class="service-form-label">
+
+                            <i class="far fa-calendar"></i>
+                            <span>التاريخ المفضل</span>
+                        </label>
+
+                        <input asp-for="PreferredDate"
+                               type="datetime-local"
+                               class="form-control" />
+
+                        <small class="service-help-text d-block">
+                            اختر التاريخ والوقت المناسبين لتقديم الخدمة.
+                        </small>
+
+                        <span asp-validation-for="PreferredDate"
+                              class="text-danger d-block">
+                        </span>
+                    </div>
+
+                    @* وصف المشكلة *@
+                    <div class="mb-4">
+                        <label asp-for="ProblemDescription"
+                               class="service-form-label">
+
+                            <i class="fas fa-align-left"></i>
+                            <span>وصف المشكلة</span>
+                        </label>
+
+                        <textarea asp-for="ProblemDescription"
+                                  class="form-control"
+                                  rows="5"
+                                  maxlength="500"
+                                  placeholder="اكتب وصف المشكلة بالتفصيل..."></textarea>
+
+                        <small class="service-help-text d-block">
+                            اذكر أي تفاصيل تساعد فريقنا على فهم الطلب.
+                        </small>
+
+                        <span asp-validation-for="ProblemDescription"
+                              class="text-danger d-block">
+                        </span>
+                    </div>
+
+                    @* عنوان العميل *@
+                    <div class="mb-4">
+                        <label asp-for="CustomerAddress"
+                               class="service-form-label address-label">
+
+                            <i class="fas fa-location-dot"></i>
+                            <span>عنوان العميل</span>
+                        </label>
+
+                        <textarea asp-for="CustomerAddress"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="اكتب العنوان الذي سيتم تقديم الخدمة فيه..."></textarea>
+
+                        <span asp-validation-for="CustomerAddress"
+                              class="text-danger d-block">
+                        </span>
+                    </div>
+
+                    @* أزرار التحكم *@
+                    <div class="service-actions d-flex flex-column-reverse flex-sm-row justify-content-sm-end gap-2">
+
+                        <a href="javascript:history.back()"
+                           class="btn btn-light">
+
+                            <i class="fas fa-arrow-right me-1"></i>
+                            رجوع
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            <i class="fas fa-paper-plane me-1"></i>
+                            إرسال الطلب
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

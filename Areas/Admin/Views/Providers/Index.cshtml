@@ -1,0 +1,661 @@
+﻿@model IEnumerable<SmartServiceManagement.Models.Provider>
+
+@{
+    ViewData["Title"] = "مزودي الخدمة";
+}
+
+
+<!-- Page Header -->
+<div class="content-header">
+
+    <div class="container-fluid">
+
+        <div class="row mb-2 align-items-center">
+
+            <div class="col-sm-6">
+
+                <h1 class="m-0 text-white fw-bold">
+
+                    <i class="fas fa-user-tie me-2"></i>
+
+                    مزودي الخدمة
+
+                </h1>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<section class="content">
+
+    <div class="container-fluid">
+
+
+        <!-- Success Message -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm"
+                 role="alert">
+
+                <i class="fas fa-check-circle me-2"></i>
+
+                @TempData["Success"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close">
+                </button>
+
+            </div>
+        }
+
+
+        <!-- Statistics -->
+        <div class="row mb-3">
+
+
+            <!-- Total Providers -->
+            <div class="col-lg-4 col-6">
+
+                <div class="small-box bg-primary">
+
+                    <div class="inner">
+
+                        <h3>
+                            @(Model?.Count() ?? 0)
+                        </h3>
+
+                        <p>
+                            إجمالي مزودي الخدمة
+                        </p>
+
+                    </div>
+
+                    <div class="icon">
+
+                        <i class="fas fa-users"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Available Providers -->
+            <div class="col-lg-4 col-6">
+
+                <div class="small-box bg-success">
+
+                    <div class="inner">
+
+                        <h3>
+                            @(Model?.Count(p => p.IsAvailable) ?? 0)
+                        </h3>
+
+                        <p>
+                            مزودو الخدمة المتاحون
+                        </p>
+
+                    </div>
+
+                    <div class="icon">
+
+                        <i class="fas fa-user-check"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Unavailable Providers -->
+            <div class="col-lg-4 col-6">
+
+                <div class="small-box bg-danger">
+
+                    <div class="inner">
+
+                        <h3>
+                            @(Model?.Count(p => !p.IsAvailable) ?? 0)
+                        </h3>
+
+                        <p>
+                            مزودو الخدمة المتوقفون
+                        </p>
+
+                    </div>
+
+                    <div class="icon">
+
+                        <i class="fas fa-user-slash"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Providers Card -->
+        <div class="card card-outline card-primary shadow-sm">
+
+
+            <!-- Card Header -->
+            <div class="card-header">
+
+                <h3 class="card-title text-white fw-bold">
+
+                    <i class="fas fa-users-cog me-2"></i>
+
+                    مزودي الخدمة المسجلين
+
+                </h3>
+
+            </div>
+
+
+            <!-- Card Body -->
+            <div class="card-body p-0">
+
+
+                @if (Model != null && Model.Any())
+                {
+                    <div class="table-responsive">
+
+
+                        <table class="table table-dark table-hover align-middle mb-0">
+
+
+                            <thead class="table-secondary text-dark">
+
+                                <tr>
+
+                                    <th class="text-center py-3"
+                                        style="width:60px;">
+
+                                        #
+
+                                    </th>
+
+                                    <th class="py-3">
+
+                                        مزود الخدمة
+
+                                    </th>
+
+                                    <th class="py-3">
+
+                                        المستخدم
+
+                                    </th>
+
+                                    <th class="py-3">
+
+                                        المدينة
+
+                                    </th>
+
+                                    <th class="text-center py-3">
+
+                                        الخبرة
+
+                                    </th>
+
+                                    <th class="text-center py-3">
+
+                                        التقييم
+
+                                    </th>
+
+                                    <th class="text-center py-3">
+
+                                        الخدمات
+
+                                    </th>
+
+                                    <th class="text-center py-3">
+
+                                        الحالة
+
+                                    </th>
+
+                                    <th class="text-center py-3"
+                                        style="width:300px;">
+
+                                        الإجراءات
+
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+
+                                @{
+                                    int counter = 1;
+                                }
+
+
+                                @foreach (var provider in Model)
+                                {
+
+                                    <tr>
+
+
+                                        <!-- Number -->
+                                        <td class="text-center">
+
+                                            <span class="fw-bold text-primary">
+
+                                                @counter
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Provider -->
+                                        <td>
+
+                                            <div class="d-flex align-items-center">
+
+
+                                                @if (!string.IsNullOrEmpty(provider.Logo))
+                                                {
+                                                    <img src="@provider.Logo"
+                                                         alt="@provider.CompanyName"
+                                                         class="rounded-circle shadow-sm me-3"
+                                                         style="
+                                                                        width:50px;
+                                                                        height:50px;
+                                                                        object-fit:cover;
+                                                                     " />
+                                                }
+                                                else
+                                                {
+                                                    <div class="rounded-circle
+                                                                            bg-secondary
+                                                                            text-white
+                                                                            d-flex
+                                                                            align-items-center
+                                                                            justify-content-center
+                                                                            me-3"
+                                                         style="
+                                                                        width:50px;
+                                                                        height:50px;
+                                                                     ">
+
+                                                        <i class="fas fa-user-tie"></i>
+
+                                                    </div>
+                                                }
+
+
+                                                <div>
+
+                                                    <div class="fw-bold text-white">
+
+                                                        @provider.CompanyName
+
+                                                    </div>
+
+
+                                                    <small class="text-white-50">
+
+                                                        @if (!string.IsNullOrEmpty(provider.ContactNumber))
+                                                        {
+                                                            <i class="fas fa-phone me-1"></i>
+
+                                                            @provider.ContactNumber
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>
+                                                                لا يوجد رقم
+                                                            </span>
+                                                        }
+
+                                                    </small>
+
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- User -->
+                                        <td>
+
+                                            @if (provider.User != null)
+                                            {
+                                                <div>
+
+                                                    <div class="fw-semibold text-white">
+
+                                                        @provider.User.FullName
+
+                                                    </div>
+
+
+                                                    <small class="text-white-50">
+
+                                                        <i class="fas fa-envelope me-1"></i>
+
+                                                        @provider.User.Email
+
+                                                    </small>
+
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">
+
+                                                    غير مرتبط
+
+                                                </span>
+                                            }
+
+                                        </td>
+
+
+                                        <!-- City -->
+                                        <td>
+
+                                            @if (!string.IsNullOrEmpty(provider.City))
+                                            {
+                                                <span class="text-white">
+
+                                                    <i class="fas fa-map-marker-alt text-danger me-1"></i>
+
+                                                    @provider.City
+
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-white-50">
+
+                                                    غير محدد
+
+                                                </span>
+                                            }
+
+                                        </td>
+
+
+                                        <!-- Experience -->
+                                        <td class="text-center">
+
+                                            <span class="badge bg-info text-dark px-3 py-2">
+
+                                                <i class="fas fa-briefcase me-1"></i>
+
+                                                @provider.ExperienceYears سنة
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Rating -->
+                                        <td class="text-center">
+
+                                            <div>
+
+                                                <span class="fw-bold text-white">
+
+                                                    <i class="fas fa-star text-warning"></i>
+
+                                                    @provider.AverageRating.ToString("0.0")
+
+                                                </span>
+
+
+                                                <small class="text-white-50">
+
+                                                    / 5
+
+                                                </small>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- Services -->
+                                        <td class="text-center">
+
+                                            <span class="badge bg-primary px-3 py-2">
+
+                                                <i class="fas fa-tools me-1"></i>
+
+                                                @(provider.Services?.Count ?? 0)
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Status -->
+                                        <td class="text-center">
+
+                                            @if (provider.IsAvailable)
+                                            {
+                                                <span class="badge bg-success px-3 py-2">
+
+                                                    <i class="fas fa-check-circle me-1"></i>
+
+                                                    متاح
+
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger px-3 py-2">
+
+                                                    <i class="fas fa-times-circle me-1"></i>
+
+                                                    متوقف
+
+                                                </span>
+                                            }
+
+                                        </td>
+
+
+                                        <!-- Actions -->
+                                        <td class="text-center">
+
+
+                                            <div class="btn-group btn-group-sm"
+                                                 role="group">
+
+
+                                                <!-- Details -->
+                                                <a asp-action="Details"
+                                                   asp-route-id="@provider.ProviderId"
+                                                   class="btn btn-info text-white me-1 rounded"
+                                                   data-bs-toggle="tooltip"
+                                                   title="عرض التفاصيل">
+
+                                                    <i class="fas fa-eye me-1"></i>
+
+                                                    تفاصيل
+
+                                                </a>
+
+
+                                                <!-- Edit -->
+                                                <a asp-action="Edit"
+                                                   asp-route-id="@provider.ProviderId"
+                                                   class="btn btn-warning text-dark me-1 rounded"
+                                                   data-bs-toggle="tooltip"
+                                                   title="تعديل البيانات">
+
+                                                    <i class="fas fa-edit me-1"></i>
+
+                                                    تعديل
+
+                                                </a>
+
+
+                                                <!-- Activate -->
+                                                @if (!provider.IsAvailable)
+                                                {
+                                                    <form asp-action="Activate"
+                                                          asp-route-id="@provider.ProviderId"
+                                                          method="post"
+                                                          class="d-inline me-1">
+
+                                                        @Html.AntiForgeryToken()
+
+                                                        <button type="submit"
+                                                                class="btn btn-success rounded"
+                                                                data-bs-toggle="tooltip"
+                                                                title="تفعيل">
+
+                                                            <i class="fas fa-check me-1"></i>
+
+                                                            تفعيل
+
+                                                        </button>
+
+                                                    </form>
+                                                }
+
+
+                                                <!-- Deactivate -->
+                                                @if (provider.IsAvailable)
+                                                {
+                                                    <form asp-action="Deactivate"
+                                                          asp-route-id="@provider.ProviderId"
+                                                          method="post"
+                                                          class="d-inline">
+
+                                                        @Html.AntiForgeryToken()
+
+                                                        <button type="submit"
+                                                                class="btn btn-danger rounded"
+                                                                data-bs-toggle="tooltip"
+                                                                title="إيقاف">
+
+                                                            <i class="fas fa-ban me-1"></i>
+
+                                                            إيقاف
+
+                                                        </button>
+
+                                                    </form>
+                                                }
+
+
+                                            </div>
+
+                                        </td>
+
+
+                                    </tr>
+
+                                    counter++;
+                                }
+
+
+                            </tbody>
+
+                        </table>
+
+
+                    </div>
+                }
+                else
+                {
+
+                    <!-- Empty State -->
+
+                    <div class="text-center text-white-50 py-5">
+
+                        <div class="mb-3">
+
+                            <div class="rounded-circle
+                                            bg-secondary
+                                            text-white
+                                            d-flex
+                                            align-items-center
+                                            justify-content-center
+                                            mx-auto"
+                                 style="
+                                        width:90px;
+                                        height:90px;
+                                     ">
+
+                                <i class="fas fa-user-tie fa-2x"></i>
+
+                            </div>
+
+                        </div>
+
+
+                        <h5 class="fw-bold text-white">
+
+                            لا يوجد مزودي خدمة
+
+                        </h5>
+
+
+                        <p class="text-white-50 mb-0">
+
+                            لم يتم العثور على أي مزود خدمة في النظام.
+
+                        </p>
+
+                    </div>
+
+                }
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var tooltipTriggerList =
+                [].slice.call(
+                    document.querySelectorAll('[data-bs-toggle="tooltip"]')
+                );
+
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+
+            });
+
+        });
+
+    </script>
+
+}

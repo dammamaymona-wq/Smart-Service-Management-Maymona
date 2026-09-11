@@ -1,0 +1,1254 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SmartServiceManagement.Data
+@using SmartServiceManagement.Models
+@using Microsoft.AspNetCore.Identity
+@using SmartServiceManagement.Areas.Identity.Models
+
+@inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext _context
+
+@{
+    ViewData["Title"] = "Dashboard";
+
+    var currentUser = await UserManager.GetUserAsync(User);
+
+    var userRoles = currentUser != null
+        ? await UserManager.GetRolesAsync(currentUser)
+        : new List<string>();
+
+    var isAdmin = userRoles.Contains("Admin");
+    var isProvider = userRoles.Contains("Provider");
+    var isCustomer = userRoles.Contains("Customer");
+    var isManager = userRoles.Contains("Manager");
+    var notificationsArea = isProvider ? "Provider" : isCustomer ? "Customer" : "Admin";
+
+    // المستخدم الذي يستطيع التقديم كمزود
+    var canApplyAsProvider = !isAdmin && !isProvider;
+
+    // إشعارات المستخدم الحالي فقط
+    var currentUserId = currentUser?.Id;
+
+    var unreadNotifications = _context.Notifications
+        .Where(n => n.UserId == currentUserId && !n.IsRead)
+        .OrderByDescending(n => n.CreatedAt)
+        .Take(5)
+        .ToList();
+
+    var unreadNotificationsCount = _context.Notifications
+        .Count(n => n.UserId == currentUserId && !n.IsRead);
+}
+<!doctype html>
+<html lang="en">
+
+<!-- ========================= HEAD ========================= -->
+
+<head>
+
+    <meta http-equiv="Content-Type"
+          content="text/html; charset=utf-8" />
+
+    <title>
+        Smart Service Management | Dashboard
+    </title>
+
+
+    <!-- Theme Init -->
+
+    <script>
+        (() => {
+            'use strict';
+
+            const STORAGE_KEY = 'lte-theme';
+
+            let stored = null;
+
+            try {
+                stored = localStorage.getItem(STORAGE_KEY);
+            }
+            catch {
+            }
+
+            const prefersDark =
+                globalThis.matchMedia(
+                    '(prefers-color-scheme: dark)'
+                ).matches;
+
+            let resolved = 'light';
+
+            if (stored === 'dark' || stored === 'light') {
+                resolved = stored;
+            }
+            else if (prefersDark) {
+                resolved = 'dark';
+            }
+
+            document.documentElement.setAttribute(
+                'data-bs-theme',
+                resolved
+            );
+
+            document.documentElement.style.colorScheme =
+                resolved;
+
+        })();
+    </script>
+
+
+    <!-- Accessibility -->
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+
+    <meta name="color-scheme"
+          content="light dark" />
+
+    <meta name="theme-color"
+          content="#007bff"
+          media="(prefers-color-scheme: light)" />
+
+    <meta name="theme-color"
+          content="#1a1a1a"
+          media="(prefers-color-scheme: dark)" />
+
+
+    <!-- Primary Meta Tags -->
+
+    <meta name="title"
+          content="Smart Service Management | Dashboard" />
+
+    <meta name="author"
+          content="ColorlibHQ" />
+
+    <meta name="description"
+          content="Smart Service Management Dashboard" />
+
+    <meta name="keywords"
+          content="Smart Service Management, services, providers, customers, dashboard" />
+
+    <meta name="supported-color-schemes"
+          content="light dark" />
+
+
+    <link rel="preload"
+          href="~/Admin/assets/css/adminlte.css"
+          as="style" />
+
+
+    <!-- Fonts -->
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@@fontsource/source-sans-3@5.0.12/index.css"
+          integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q="
+          crossorigin="anonymous"
+          media="print"
+          onload="this.media = 'all'" />
+
+
+    <!-- OverlayScrollbars -->
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css"
+          crossorigin="anonymous" />
+
+
+    <!-- Bootstrap Icons -->
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+          crossorigin="anonymous" />
+
+
+    <!-- AdminLTE -->
+
+    <link rel="stylesheet"
+          href="~/Admin/assets/css/adminlte.css"
+          asp-append-version="true" />
+
+
+    <!-- ApexCharts -->
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css"
+          integrity="sha256-4MX+61mt9NVvvuPjUWdUdyfZfxSB1/Rf9WtqRHgG5S0="
+          crossorigin="anonymous" />
+
+
+    <!-- jsVectorMap -->
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css"
+          integrity="sha256-+uGLJmmTKOqBr+2E6KDYs/NRsHxSkONXFHUL0fy2O/4="
+          crossorigin="anonymous" />
+
+
+    @await RenderSectionAsync("Styles", required: false)
+
+</head>
+
+
+<!-- ========================= BODY ========================= -->
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+
+
+    <div class="app-wrapper">
+
+
+        <!-- ================================================= -->
+        <!-- HEADER                                            -->
+        <!-- ================================================= -->
+
+        <nav class="app-header navbar navbar-expand bg-body">
+
+
+            <div class="container-fluid">
+
+
+                <!-- ========================= -->
+                <!-- Left Navbar -->
+                <!-- ========================= -->
+
+                <ul class="navbar-nav">
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           data-lte-toggle="sidebar"
+                           href="#"
+                           role="button"
+                           aria-label="Toggle sidebar">
+
+                            <i class="bi bi-list"></i>
+
+                        </a>
+
+                    </li>
+
+
+                
+
+                </ul>
+
+
+                <!-- ========================= -->
+                <!-- Right Navbar -->
+                <!-- ========================= -->
+
+                <ul class="navbar-nav ms-auto">
+
+                    <!-- ================================================= -->
+                    <!-- Messages / Real Notifications -->
+                    <!-- ================================================= -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link"
+                           data-bs-toggle="dropdown"
+                           href="#"
+                           aria-label="الإشعارات @unreadNotificationsCount">
+                            <i class="bi bi-chat-text"></i>
+                            @if (unreadNotificationsCount > 0)
+                            {
+                                <span class="navbar-badge badge text-bg-danger">@unreadNotificationsCount</span>
+                            }
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end notification-dropdown">
+                            <span class="dropdown-item dropdown-header">@unreadNotificationsCount إشعارات جديدة</span>
+                            <div class="dropdown-divider"></div>
+                            @if (unreadNotifications.Any())
+                            {
+                                foreach (var notification in unreadNotifications)
+                                {
+                                    <a asp-area="@notificationsArea" asp-controller="Notifications" asp-action="Index" class="dropdown-item notification-preview">
+                                        <div class="notification-preview-icon"><i class="bi bi-chat-left-text-fill"></i></div>
+                                        <div class="notification-preview-content">
+                                            <strong>@notification.Title</strong>
+                                            <span>@notification.Message</span>
+                                            <small>@notification.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</small>
+                                        </div>
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <div class="notification-empty-preview"><i class="bi bi-chat-square-text"></i><span>لا توجد رسائل جديدة</span></div>
+                            }
+                            <div class="dropdown-divider"></div>
+                            <a asp-area="@notificationsArea" asp-controller="Notifications" asp-action="Index" class="dropdown-item dropdown-footer">عرض كل الإشعارات</a>
+                        </div>
+                    </li>
+
+                    <!-- ================================================= -->
+                    <!-- Notifications -->
+                    <!-- ================================================= -->
+
+                    <li class="nav-item dropdown">
+
+
+                        <a class="nav-link"
+                           data-bs-toggle="dropdown"
+                           href="#"
+                           aria-label="Notifications: @unreadNotificationsCount unread">
+
+                            <i class="bi bi-bell-fill"></i>
+
+
+                            @if (unreadNotificationsCount > 0)
+                            {
+                                <span class="navbar-badge badge text-bg-warning">
+
+                                    @unreadNotificationsCount
+
+                                </span>
+                            }
+
+                        </a>
+
+
+                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+
+
+                            <span class="dropdown-item dropdown-header">
+
+                                @unreadNotificationsCount
+                                إشعارات غير مقروءة
+
+                            </span>
+
+
+                            <div class="dropdown-divider"></div>
+
+
+                            @if (unreadNotifications.Any())
+                            {
+
+                                foreach (var notification in unreadNotifications)
+                                {
+
+                                    <a asp-area="Admin"
+                                       asp-controller="Notifications"
+                                       asp-action="Index"
+                                       class="dropdown-item">
+
+                                        <i class="bi bi-bell-fill me-2 text-warning"></i>
+
+
+                                        <strong>
+                                            @notification.Title
+                                        </strong>
+
+
+                                        <span class="float-end text-secondary fs-7">
+
+                                            @{
+                                                var time =
+                                                DateTime.UtcNow -
+                                                notification.CreatedAt;
+
+                                                if (time.TotalMinutes < 1)
+                                                {
+                                                    @:الآن
+                                                }
+                                                else if (time.TotalMinutes < 60)
+                                                {
+                                                    @($"{(int)time.TotalMinutes} دقيقة")
+                                                }
+                                                else if (time.TotalHours < 24)
+                                                {
+                                                    @($"{(int)time.TotalHours} ساعة")
+                                                }
+                                                else
+                                                {
+                                                    @($"{(int)time.TotalDays} يوم")
+                                                }
+                                            }
+
+                                        </span>
+
+
+                                        <div class="text-secondary fs-7 mt-1 text-truncate">
+
+                                            @notification.Message
+
+                                        </div>
+
+                                    </a>
+
+
+                                    <div class="dropdown-divider"></div>
+
+                                }
+
+                            }
+                            else
+                            {
+
+                                <div class="dropdown-item text-center py-3">
+
+                                    <i class="bi bi-bell-slash fs-4 text-secondary d-block mb-2"></i>
+
+                                    <span class="text-secondary">
+
+                                        لا توجد إشعارات جديدة
+
+                                    </span>
+
+                                </div>
+
+
+                                <div class="dropdown-divider"></div>
+
+                            }
+
+
+                            <a asp-area="Admin"
+                               asp-controller="Notifications"
+                               asp-action="Index"
+                               class="dropdown-item dropdown-footer">
+
+                                عرض جميع الإشعارات
+
+                            </a>
+
+                        </div>
+
+                    </li>
+
+
+                    <!-- ================================================= -->
+                    <!-- Fullscreen -->
+                    <!-- ================================================= -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           href="#"
+                           data-lte-toggle="fullscreen"
+                           aria-label="Toggle fullscreen">
+
+                            <i data-lte-icon="maximize"
+                               class="bi bi-arrows-fullscreen"></i>
+
+                            <i data-lte-icon="minimize"
+                               class="bi bi-fullscreen-exit d-none"></i>
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- ================================================= -->
+                    <!-- Color Mode -->
+                    <!-- ================================================= -->
+
+                    <li class="nav-item dropdown">
+
+
+                        <a class="nav-link"
+                           href="#"
+                           id="bd-theme"
+                           aria-label="Toggle color scheme"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+
+                            <i class="bi bi-sun-fill"
+                               data-lte-theme-icon="light"></i>
+
+                            <i class="bi bi-moon-fill d-none"
+                               data-lte-theme-icon="dark"></i>
+
+                            <i class="bi bi-circle-half d-none"
+                               data-lte-theme-icon="auto"></i>
+
+                        </a>
+
+
+                        <ul class="dropdown-menu dropdown-menu-end"
+                            aria-labelledby="bd-theme"
+                            style="--bs-dropdown-min-width: 8rem">
+
+
+                            <li>
+
+                                <button type="button"
+                                        class="dropdown-item d-flex align-items-center"
+                                        data-bs-theme-value="light"
+                                        aria-pressed="false">
+
+                                    <i class="bi bi-sun-fill me-2"></i>
+
+                                    Light
+
+                                    <i class="bi bi-check-lg ms-auto d-none"></i>
+
+                                </button>
+
+                            </li>
+
+
+                            <li>
+
+                                <button type="button"
+                                        class="dropdown-item d-flex align-items-center"
+                                        data-bs-theme-value="dark"
+                                        aria-pressed="false">
+
+                                    <i class="bi bi-moon-fill me-2"></i>
+
+                                    Dark
+
+                                    <i class="bi bi-check-lg ms-auto d-none"></i>
+
+                                </button>
+
+                            </li>
+
+
+                            <li>
+
+                                <button type="button"
+                                        class="dropdown-item d-flex align-items-center active"
+                                        data-bs-theme-value="auto"
+                                        aria-pressed="true">
+
+                                    <i class="bi bi-circle-half me-2"></i>
+
+                                    Auto
+
+                                    <i class="bi bi-check-lg ms-auto d-none"></i>
+
+                                </button>
+
+                            </li>
+
+                        </ul>
+
+                    </li>
+
+
+                    <!-- ================================================= -->
+                    <!-- User Menu -->
+                    <!-- ================================================= -->
+
+                    <li class="nav-item dropdown user-menu">
+                        <a href="#"
+                           class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+
+                            @if (!string.IsNullOrWhiteSpace(currentUser?.ProfileImage))
+                            {
+                                <!-- عرض صورة المستخدم إذا كانت موجودة -->
+                                <img src="@Url.Content(currentUser.ProfileImage)"
+                                     class="user-image rounded-circle shadow"
+                                     alt="@(currentUser?.FullName ?? "المستخدم")" />
+                            }
+                            else
+                            {
+                                <!-- عرض أيقونة عند عدم وجود صورة -->
+                                <span class="user-image-placeholder rounded-circle shadow"
+                                      title="لا توجد صورة شخصية"
+                                      aria-label="لا توجد صورة شخصية">
+
+                                    <i class="bi bi-person"></i>
+                                </span>
+                            }
+
+                            <span class="d-none d-md-inline">
+                                @(currentUser?.FullName ?? "المستخدم")
+                            </span>
+
+                        </a>
+
+                        <style>
+                            .user-image,
+                            .user-image-placeholder {
+                                width: 35px;
+                                height: 35px;
+                            }
+
+                            .user-image {
+                                display: block;
+                                object-fit: cover;
+                            }
+
+                            .user-image-placeholder {
+                                display: inline-flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: #6c757d;
+                                background-color: #e9ecef;
+                                font-size: 18px;
+                            }
+                        </style>
+
+
+                        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+
+
+                            <li class="user-header text-bg-primary">
+
+
+                                <img src="@(string.IsNullOrEmpty(currentUser?.ProfileImage)
+                                                                                                              ? Url.Content("~/Admin/assets/img/user2-160x160.jpg")
+                                                                                                              : Url.Content(currentUser.ProfileImage))"
+                                     class="rounded-circle shadow"
+                                     alt="@(currentUser?.FullName ?? "المستخدم")" />
+
+
+                                <p>
+
+                                    @(currentUser?.FullName ?? "المستخدم")
+
+                                    <small>
+                                        @(currentUser?.Email ?? "")
+                                    </small>
+
+                                </p>
+
+                            </li>
+
+
+                            <li class="user-footer">
+
+
+                                @if (isAdmin)
+                                {
+
+                                    <a asp-area="Admin"
+                                       asp-controller="Settings"
+                                       asp-action="Index"
+                                       class="btn btn-default btn-flat">
+
+                                        الملف الشخصي
+
+                                    </a>
+
+                                }
+
+
+                                <form asp-controller="Account"
+                                      asp-action="Logout"
+                                      method="post"
+                                      class="d-inline float-end">
+
+                                    @Html.AntiForgeryToken()
+
+
+                                    <form asp-controller="Account"
+                                          asp-action="Logout"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn btn-default btn-flat">
+
+                                            <i class="bi bi-box-arrow-right me-1"></i>
+                                            تسجيل الخروج
+                                        </button>
+                                    </form>
+
+
+
+                                </form>
+
+
+                            </li>
+
+                        </ul>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </nav>
+
+
+        <!-- ================================================= -->
+        <!-- SIDEBAR                                           -->
+        <!-- ================================================= -->
+
+        <aside class="app-sidebar bg-body-secondary shadow"
+               data-bs-theme="dark">
+
+
+            <!-- Sidebar Brand -->
+
+            <div class="sidebar-brand">
+
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   asp-area=""
+                   class="brand-link">
+
+
+                    <img src="~/Admin/assets/img/maymonalogo.png"
+                         alt="Smart Service Management"
+                         class="brand-image shadow" />
+
+                </a>
+
+
+                @if (isAdmin || isManager)
+                {
+                    <a asp-area="Admin"
+                       asp-controller="Home"
+                       asp-action="Index"
+                       class="brand-text fw-light text-decoration-none">
+                        Dashboard
+                    </a>
+                }
+                else if (isProvider)
+                {
+                    <a asp-area="Provider"
+                       asp-controller="Home"
+                       asp-action="Index"
+                       class="brand-text fw-light text-decoration-none">
+                        Dashboard
+                    </a>
+                }
+                else if (isCustomer)
+                {
+                    <a asp-area="Customer"
+                       asp-controller="Home"
+                       asp-action="Index"
+                       class="brand-text fw-light text-decoration-none">
+                        Dashboard
+                    </a>
+                }
+
+            </div>
+
+
+            <!-- Sidebar Wrapper -->
+
+            <div class="sidebar-wrapper">
+
+
+                <nav class="mt-2"
+                     aria-label="Main navigation">
+
+
+                    <ul class="nav sidebar-menu flex-column"
+                        data-lte-toggle="treeview"
+                        data-accordion="false"
+                        id="navigation">
+
+                        @* ========================================================= *@
+                        @* ADMIN *@
+                        @* ========================================================= *@
+
+                        @if (isAdmin)
+                        {
+                          <!-- إدارة المستخدمين -->
+                                <li class="nav-item">
+                                    <a asp-area="Admin"
+                                       asp-controller="Users"
+                                       asp-action="Index"
+                                       class="nav-link">
+
+                                        <i class="nav-icon bi bi-people-fill"></i>
+                                        <p>المستخدمون</p>
+                                    </a>
+                                </li>
+
+                                <!-- الإعدادات -->
+                                <li class="nav-item">
+                                    <a asp-area="Admin"
+                                       asp-controller="Settings"
+                                       asp-action="Index"
+                                       class="nav-link">
+
+                                        <i class="nav-icon bi bi-gear-fill"></i>
+                                        <p>الإعدادات</p>
+                                    </a>
+                                </li>
+
+                                <!-- طلبات مزودي الخدمة -->
+                                <li class="nav-item">
+                                    <a asp-area="Admin"
+                                       asp-controller="Providers"
+                                       asp-action="Requests"
+                                       class="nav-link">
+
+                                        <i class="nav-icon bi bi-person-check-fill"></i>
+                                        <p>طلبات المزودين</p>
+                                    </a>
+                                </li>
+
+                                <!-- مزودو الخدمة -->
+                                <li class="nav-item">
+                                    <a asp-area="Admin"
+                                       asp-controller="Providers"
+                                       asp-action="Index"
+                                       class="nav-link">
+
+                                        <i class="nav-icon bi bi-person-badge-fill"></i>
+                                        <p>مزودو الخدمة</p>
+                                    </a>
+                                </li>
+
+                                <!-- الإشعارات -->
+                                <li class="nav-item">
+                                    <a asp-area="Admin"
+                                       asp-controller="Notifications"
+                                       asp-action="Index"
+                                       class="nav-link">
+
+                                        <i class="nav-icon bi bi-bell-fill"></i>
+                                        <p>الإشعارات</p>
+                                    </a>
+                                </li>
+
+                                <!-- الأقسام -->
+                                <li class="nav-item">
+                                    <a asp-area="Admin"
+                                       asp-controller="Categories"
+                                       asp-action="Index"
+                                       class="nav-link">
+
+                                        <i class="nav-icon bi bi-grid-3x3-gap-fill"></i>
+                                        <p>الأقسام</p>
+                                    </a>
+                                </li>
+
+                                <!-- إدارة الخدمات -->
+                                <li class="nav-item">
+                                    <a asp-area="Admin"
+                                       asp-controller="Services"
+                                       asp-action="Index"
+                                       class="nav-link">
+
+                                        <i class="nav-icon bi bi-tools"></i>
+                                        <p>إدارة الخدمات</p>
+                                    </a>
+                                </li>
+    }
+
+
+
+                        @* ========================================================= *@
+                        @* PROVIDER APPLICATION *@
+                        @* ========================================================= *@
+
+                        @if (canApplyAsProvider)
+                        {
+                            <li class="nav-item">
+
+                                <a class="nav-link"
+                                   asp-area=""
+                                   asp-controller="ProviderRequest"
+                                   asp-action="Apply">
+
+                                    <i class="fas fa-handshake me-2"></i>
+
+                                    <span>
+                                        الانضمام كمزود خدمة
+                                    </span>
+
+                                </a>
+
+                            </li>
+                        }
+
+
+                        @* ========================================================= *@
+                        @* PROVIDER *@
+                        @* ========================================================= *@
+
+                        @if (isProvider)
+                        {
+                            <li class="nav-item">
+
+                                <a asp-area="Provider"
+                                   asp-controller="Home"
+                                   asp-action="Index"
+                                   class="nav-link">
+
+                                    <i class="nav-icon bi bi-speedometer2"></i>
+
+                                    <p>
+                                        لوحة مزود الخدمة
+                                    </p>
+
+                                </a>
+
+                            </li>
+                        }
+
+
+                        @* ========================================================= *@
+                        @* CUSTOMER *@
+                        @* ========================================================= *@
+
+                        else if (isCustomer)
+                        {
+                            <li class="nav-item">
+
+                                <a asp-area="Customer"
+                                   asp-controller="Home"
+                                   asp-action="Index"
+                                   class="nav-link">
+
+                                    <i class="nav-icon bi bi-speedometer2"></i>
+
+                                    <p>
+                                        لوحة العميل
+                                    </p>
+
+                                </a>
+
+                            </li>
+                        }
+
+
+                        @* ========================================================= *@
+                        @* MANAGER *@
+                        @* ========================================================= *@
+
+                        @if (isManager)
+                        {
+                            <li class="nav-item">
+
+                                <a asp-area="Manager"
+                                   asp-controller="Home"
+                                   asp-action="Index"
+                                   class="nav-link">
+
+                                    <i class="nav-icon bi bi-speedometer2"></i>
+
+                                    <p>
+                                        لوحة المدير
+                                    </p>
+
+                                </a>
+
+                            </li>
+                        }
+
+                    </ul>
+
+
+
+                </nav>
+
+            </div>
+
+        </aside>
+
+
+        <!-- ================================================= -->
+        <!-- MAIN                                               -->
+        <!-- ================================================= -->
+
+        <main class="app-main">
+
+            @RenderBody()
+
+        </main>
+
+
+        <!-- ================================================= -->
+        <!-- FOOTER                                             -->
+        <!-- ================================================= -->
+
+        <footer class="app-footer">
+
+
+            <div class="float-end d-none d-sm-inline">
+
+                Thank You
+
+            </div>
+
+
+            <strong>
+
+                Maymona Team
+
+                <span>
+                    Smart Service Management
+                </span>
+
+            </strong>
+
+
+            All rights reserved.
+
+        </footer>
+
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- SCRIPTS                                           -->
+    <!-- ================================================= -->
+    <!-- OverlayScrollbars -->
+
+    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js"
+            crossorigin="anonymous">
+    </script>
+
+
+    <!-- Popper -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.8/dist/umd/popper.min.js"
+            crossorigin="anonymous">
+    </script>
+
+
+    <!-- Bootstrap -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
+            crossorigin="anonymous">
+    </script>
+
+
+    <!-- AdminLTE -->
+
+    <script src="~/Admin/assets/js/adminlte.js"
+            asp-append-version="true">
+    </script>
+
+
+    <!-- ================================================= -->
+    <!-- OverlayScrollbars Configure                      -->
+    <!-- ================================================= -->
+
+    <script>
+
+        const SELECTOR_SIDEBAR_WRAPPER =
+            '.sidebar-wrapper';
+
+        const Default = {
+
+            scrollbarTheme:
+                'os-theme-light',
+
+            scrollbarAutoHide:
+                'leave',
+
+            scrollbarClickScroll:
+                true,
+
+        };
+
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            function () {
+
+                const sidebarWrapper =
+                    document.querySelector(
+                        SELECTOR_SIDEBAR_WRAPPER
+                    );
+
+
+                const isMobile =
+                    window.innerWidth <= 992;
+
+
+                if (
+                    sidebarWrapper &&
+                    OverlayScrollbarsGlobal?.OverlayScrollbars !== undefined &&
+                    !isMobile
+                ) {
+
+                    OverlayScrollbarsGlobal.OverlayScrollbars(
+                        sidebarWrapper,
+                        {
+
+                            scrollbars: {
+
+                                theme:
+                                    Default.scrollbarTheme,
+
+                                autoHide:
+                                    Default.scrollbarAutoHide,
+
+                                clickScroll:
+                                    Default.scrollbarClickScroll,
+
+                            },
+
+                        }
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+    <!-- ================================================= -->
+    <!-- SortableJS                                        -->
+    <!-- ================================================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
+            crossorigin="anonymous">
+    </script>
+
+
+    <script>
+
+        const connectedSortable =
+            document.querySelector(
+                '.connectedSortable'
+            );
+
+
+        if (connectedSortable) {
+
+            new Sortable(
+                connectedSortable,
+                {
+
+                    group: 'shared',
+
+                    handle: '.card-header',
+
+                }
+            );
+
+
+            const cardHeaders =
+                document.querySelectorAll(
+                    '.connectedSortable .card-header'
+                );
+
+
+            cardHeaders.forEach(
+                (cardHeader) => {
+
+                    cardHeader.style.cursor =
+                        'move';
+
+                }
+            );
+
+        }
+
+    </script>
+
+
+    <!-- ================================================= -->
+    <!-- ApexCharts                                        -->
+    <!-- ================================================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
+            crossorigin="anonymous">
+    </script>
+
+
+    <!-- ================================================= -->
+    <!-- jsVectorMap                                       -->
+    <!-- ================================================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js"
+            crossorigin="anonymous">
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js"
+            crossorigin="anonymous">
+    </script>
+
+
+    <!-- ================================================= -->
+    <!-- Render Scripts Section                            -->
+    <!-- ================================================= -->
+    @await RenderSectionAsync("Scripts", required: false)
+
+
+    <style>
+        .notification-dropdown {
+            min-width: 350px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .notification-preview {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 13px 15px;
+            white-space: normal;
+        }
+
+            .notification-preview:hover {
+                background: #f5f9ff;
+            }
+
+        .notification-preview-icon {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 34px;
+            color: #246bce;
+            background: #eaf2ff;
+            border-radius: 10px;
+        }
+
+        .notification-preview-content {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+            .notification-preview-content strong {
+                overflow: hidden;
+                color: #263b59;
+                font-size: 12px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .notification-preview-content span {
+                overflow: hidden;
+                color: #718096;
+                font-size: 11px;
+                line-height: 1.45;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .notification-preview-content small {
+                color: #a0aaba;
+                font-size: 9px;
+            }
+
+        .notification-empty-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 28px 15px;
+            color: #98a4b5;
+            font-size: 12px;
+        }
+
+            .notification-empty-preview i {
+                color: #7da4d7;
+                font-size: 22px;
+            }
+
+        @@media (max-width: 575.98px) {
+            .notification-dropdown {
+                min-width: 290px;
+                max-width: calc(100vw - 24px);
+            }
+        }
+    </style>
+
+</body>
+
+</html>

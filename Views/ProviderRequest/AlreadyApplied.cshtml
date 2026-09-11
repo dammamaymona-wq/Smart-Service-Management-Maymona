@@ -1,0 +1,480 @@
+﻿@using System.Globalization
+@model SmartServiceManagement.Models.Provider
+
+@{
+    ViewData["Title"] = "حالة طلب الانضمام";
+
+    var companyName = string.IsNullOrWhiteSpace(Model?.CompanyName)
+        ? "شركتك"
+        : Model.CompanyName;
+
+    var createdDate = Model?.CreatedAt
+        .ToLocalTime()
+        .ToString("dd/MM/yyyy - hh:mm tt", CultureInfo.InvariantCulture);
+}
+
+<div class="provider-status-page" dir="rtl">
+    <div class="container py-5">
+
+        <div class="row justify-content-center">
+            <div class="col-xl-7 col-lg-8 col-md-10">
+
+                <!-- Intro -->
+                <div class="status-intro text-center mb-4">
+                    <div class="status-intro-icon">
+                        <i class="fas fa-file-circle-check"></i>
+                    </div>
+
+                    <h1>
+                        حالة طلب الانضمام
+                    </h1>
+
+                    <p>
+                        يمكنك متابعة حالة طلبك ومعلومات التسجيل من هنا.
+                    </p>
+                </div>
+
+                <!-- Status Card -->
+                <div class="status-card">
+
+                    <!-- Card Header -->
+                    <div class="status-card-header">
+                        <div class="header-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+
+                        <div>
+                            <span class="header-label">
+                                حالة الطلب
+                            </span>
+
+                            <h2>
+                                طلب انضمام مسجّل بالفعل
+                            </h2>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="status-card-body">
+
+                        <div class="success-mark">
+                            <i class="fas fa-check"></i>
+                        </div>
+
+                        <h3>
+                            لديك طلب انضمام مسجّل بالفعل
+                        </h3>
+
+                        <p class="status-description">
+                            لقد قمت بتقديم طلب لانضمام شركتك
+                            <strong>@companyName</strong>
+                            سابقًا.
+                        </p>
+
+                        <!-- Current Status -->
+                        <div class="current-status">
+                            <div class="status-label">
+                                <i class="fas fa-info-circle"></i>
+                                حالة الطلب الحالية
+                            </div>
+
+                            <span class="status-badge">
+                                <i class="fas fa-hourglass-half"></i>
+                                @Model.Status
+                            </span>
+                        </div>
+
+                        <!-- Request Details -->
+                        <div class="request-meta">
+
+                            <div class="meta-item">
+                                <span class="meta-icon">
+                                    <i class="fas fa-calendar-days"></i>
+                                </span>
+
+                                <div>
+                                    <span class="meta-label">
+                                        تاريخ تقديم الطلب
+                                    </span>
+
+                                    <strong>
+                                        @createdDate
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <span class="meta-icon">
+                                    <i class="fas fa-building"></i>
+                                </span>
+
+                                <div>
+                                    <span class="meta-label">
+                                        اسم الشركة
+                                    </span>
+
+                                    <strong>
+                                        @companyName
+                                    </strong>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="status-note">
+                            <i class="fas fa-circle-info"></i>
+
+                            <span>
+                                سيتم التواصل معك بعد الانتهاء من مراجعة طلب الانضمام.
+                            </span>
+                        </div>
+
+                        <div class="status-divider"></div>
+
+                        <a asp-controller="Home"
+                           asp-action="Index"
+                           class="home-button">
+
+                            <i class="fas fa-arrow-right"></i>
+                            العودة إلى الرئيسية
+                        </a>
+
+                    </div>
+                </div>
+
+                <p class="status-footer-note">
+                    شكرًا لاهتمامك بالانضمام إلى منصة Smart Service.
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .provider-status-page {
+        min-height: 100vh;
+        background: radial-gradient( circle at top right, rgba(13, 110, 253, .09), transparent 30% ), linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
+        color: #172b4d;
+    }
+
+    /* Intro */
+
+    .status-intro {
+        max-width: 620px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    .status-intro-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 18px;
+        border-radius: 22px;
+        color: #0d6efd;
+        background: #e8f1ff;
+        box-shadow: 0 12px 25px rgba(13, 110, 253, .12);
+        font-size: 28px;
+    }
+
+    .status-intro h1 {
+        margin-bottom: 9px;
+        color: #172b4d;
+        font-size: clamp(26px, 4vw, 34px);
+        font-weight: 800;
+        letter-spacing: -.6px;
+    }
+
+    .status-intro p {
+        margin: 0;
+        color: #718096;
+        font-size: 14px;
+    }
+
+    /* Main Card */
+
+    .status-card {
+        overflow: hidden;
+        border: 1px solid rgba(20, 37, 63, .07);
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 15px 45px rgba(20, 37, 63, .09);
+    }
+
+    .status-card-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 24px 28px;
+        color: #fff;
+        background: linear-gradient(135deg, #0d6efd, #1557b0);
+    }
+
+    .header-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        border: 1px solid rgba(255, 255, 255, .25);
+        border-radius: 15px;
+        background: rgba(255, 255, 255, .15);
+        font-size: 20px;
+    }
+
+    .header-label {
+        display: block;
+        margin-bottom: 4px;
+        color: rgba(255, 255, 255, .75);
+        font-size: 11px;
+    }
+
+    .status-card-header h2 {
+        margin: 0;
+        font-size: 19px;
+        font-weight: 800;
+    }
+
+    .status-card-body {
+        padding: 38px 32px;
+        text-align: center;
+    }
+
+    .success-mark {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 76px;
+        height: 76px;
+        margin: 0 auto 20px;
+        border: 8px solid #effaf3;
+        border-radius: 50%;
+        color: #218838;
+        background: #dff5e6;
+        font-size: 26px;
+    }
+
+    .status-card-body h3 {
+        margin-bottom: 12px;
+        color: #172b4d;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    .status-description {
+        max-width: 520px;
+        margin: 0 auto 25px;
+        color: #718096;
+        font-size: 15px;
+        line-height: 1.9;
+    }
+
+        .status-description strong {
+            color: #246bce;
+            font-weight: 800;
+        }
+
+    /* Current Status */
+
+    .current-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        max-width: 530px;
+        margin: 0 auto 22px;
+        padding: 15px 17px;
+        border: 1px solid #dcecff;
+        border-radius: 13px;
+        background: #f6faff;
+    }
+
+    .status-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #52647d;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+        .status-label i {
+            color: #0d6efd;
+        }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 8px 13px;
+        color: #946200;
+        background: #fff3cd;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    /* Request Details */
+
+    .request-meta {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        max-width: 530px;
+        margin: 0 auto 20px;
+        text-align: right;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 14px;
+        border: 1px solid #edf1f5;
+        border-radius: 12px;
+        background: #fbfcfe;
+    }
+
+    .meta-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        color: #246bce;
+        background: #eaf2ff;
+        font-size: 15px;
+    }
+
+    .meta-label {
+        display: block;
+        margin-bottom: 4px;
+        color: #94a3b8;
+        font-size: 10px;
+    }
+
+    .meta-item strong {
+        display: block;
+        overflow: hidden;
+        color: #293b55;
+        font-size: 12px;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Note */
+
+    .status-note {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        max-width: 530px;
+        margin: 0 auto;
+        color: #7b8798;
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+        .status-note i {
+            color: #0d6efd;
+        }
+
+    .status-divider {
+        height: 1px;
+        max-width: 530px;
+        margin: 25px auto;
+        background: #edf1f5;
+    }
+
+    /* Button */
+
+    .home-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-width: 190px;
+        border-radius: 10px;
+        padding: 12px 21px;
+        color: #fff;
+        background: linear-gradient(135deg, #0d6efd, #1557b0);
+        box-shadow: 0 9px 20px rgba(13, 110, 253, .22);
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+        .home-button:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 13px 25px rgba(13, 110, 253, .3);
+        }
+
+    .status-footer-note {
+        margin: 18px 0 0;
+        color: #8a96a8;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    /* Responsive */
+
+    @@media (max-width: 575.98px) {
+        .provider-status-page .container {
+            padding-right: 14px;
+            padding-left: 14px;
+        }
+
+        .status-card-header {
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .status-card-body {
+            padding: 30px 18px;
+        }
+
+            .status-card-body h3 {
+                font-size: 19px;
+            }
+
+        .status-description {
+            font-size: 13px;
+        }
+
+        .current-status {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .status-badge {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .request-meta {
+            grid-template-columns: 1fr;
+        }
+
+        .home-button {
+            width: 100%;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .home-button {
+            transition: none;
+        }
+    }
+</style>

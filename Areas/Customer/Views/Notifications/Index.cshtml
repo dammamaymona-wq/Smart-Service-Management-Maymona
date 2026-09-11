@@ -1,0 +1,449 @@
+@model IEnumerable<SmartServiceManagement.Models.Notification>
+
+@{
+    ViewData["Title"] = "إشعاراتي";
+    var notifications = Model?.OrderByDescending(x => x.CreatedAt).ToList() ?? new List<SmartServiceManagement.Models.Notification>();
+    var totalCount = notifications.Count;
+    var unreadCount = notifications.Count(x => !x.IsRead);
+    var readCount = notifications.Count(x => x.IsRead);
+}
+
+<div class="app-content customer-notifications" dir="rtl">
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-2 text-muted small mb-2">
+                    <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">لوحة العميل</a>
+                    <i class="bi bi-chevron-left"></i>
+                    <span>الإشعارات</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="page-icon"><i class="bi bi-bell-fill"></i></div>
+                    <div>
+                        <h1 class="h3 fw-bold mb-1">إشعاراتي</h1>
+                        <p class="text-muted mb-0">تابع آخر التحديثات المتعلقة بطلباتك.</p>
+                    </div>
+                </div>
+            </div>
+            <a asp-area="Customer" asp-controller="ServiceRequests" asp-action="Index" class="btn btn-outline-primary rounded-pill px-4">
+                <i class="bi bi-clipboard2-check ms-1"></i>
+                متابعة الطلبات
+            </a>
+        </div>
+
+        <!-- Summary -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-4">
+                <div class="notification-stat">
+                    <div class="notification-stat-icon stat-blue"><i class="bi bi-bell"></i></div>
+                    <div><span>كل الإشعارات</span><strong>@totalCount</strong></div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="notification-stat">
+                    <div class="notification-stat-icon stat-orange"><i class="bi bi-envelope"></i></div>
+                    <div><span>غير مقروءة</span><strong>@unreadCount</strong></div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="notification-stat">
+                    <div class="notification-stat-icon stat-green"><i class="bi bi-envelope-open"></i></div>
+                    <div><span>مقروءة</span><strong>@readCount</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification List -->
+        <div class="notifications-card">
+            <div class="notifications-card-header">
+                <div>
+                    <h2>آخر التنبيهات</h2>
+                    <p>ستظهر هنا جميع التحديثات الجديدة على حسابك.</p>
+                </div>
+                @if (unreadCount > 0)
+                {
+                    <span class="unread-pill"><i class="bi bi-circle-fill"></i> @unreadCount غير مقروءة</span>
+                }
+            </div>
+
+            @if (notifications.Any())
+            {
+                <div class="notification-list">
+                    @foreach (var n in notifications)
+                    {
+                        <div class="notification-item @(n.IsRead ? "is-read" : "is-unread")">
+                            <div class="notification-icon @(n.IsRead ? "read-icon" : "unread-icon")">
+                                <i class="bi @(n.IsRead ? "bi-bell" : "bi-bell-fill")"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title-line">
+                                    <h3>@n.Title</h3>
+                                    @if (!n.IsRead)
+                                    {
+                                        <span class="new-label">جديد</span>
+                                    }
+                                </div>
+                                <p>@n.Message</p>
+                                <div class="notification-time">
+                                    <i class="bi bi-clock ms-1"></i>
+                                    @n.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd - hh:mm tt")
+                                </div>
+                            </div>
+                            <div class="notification-action">
+                                @if (!n.IsRead)
+                                {
+                                    <form asp-area="Customer" asp-controller="Notifications" asp-action="MarkAsRead" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@n.NotificationId" />
+                                        <button type="submit" class="read-button" title="تحديد كمقروء">
+                                            <i class="bi bi-check2"></i>
+                                            <span>تحديد كمقروء</span>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="read-state"><i class="bi bi-check2-all"></i> تمت القراءة</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-notifications">
+                    <div class="empty-notifications-icon"><i class="bi bi-bell-slash"></i></div>
+                    <h3>لا توجد إشعارات</h3>
+                    <p>ستظهر تحديثات طلباتك هنا عند وصولها.</p>
+                    <a asp-area="" asp-controller="Services" asp-action="Index" class="btn btn-primary rounded-pill px-4">استكشف الخدمات</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .customer-notifications {
+        min-height: calc(100vh - 60px);
+        background: #f5f7fb;
+    }
+
+    .page-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #246bce;
+        background: #eaf2ff;
+        border-radius: 14px;
+        font-size: 21px;
+    }
+
+    .notification-stat {
+        min-height: 92px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 17px 19px;
+        background: #fff;
+        border: 1px solid rgba(20,37,63,.05);
+        border-radius: 15px;
+        box-shadow: 0 5px 18px rgba(20,37,63,.045);
+    }
+
+    .notification-stat-icon {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-size: 20px;
+    }
+
+    .notification-stat span {
+        display: block;
+        color: #7b8798;
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+
+    .notification-stat strong {
+        display: block;
+        color: #172b4d;
+        font-size: 25px;
+        line-height: 1;
+    }
+
+    .stat-blue {
+        color: #246bce;
+        background: #eaf2ff;
+    }
+
+    .stat-orange {
+        color: #c77b10;
+        background: #fff1dc;
+    }
+
+    .stat-green {
+        color: #218842;
+        background: #e3f8e8;
+    }
+
+    .notifications-card {
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid rgba(20,37,63,.05);
+        border-radius: 17px;
+        box-shadow: 0 5px 18px rgba(20,37,63,.045);
+    }
+
+    .notifications-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 24px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+        .notifications-card-header h2 {
+            color: #172b4d;
+            font-size: 17px;
+            font-weight: 800;
+            margin: 0 0 5px;
+        }
+
+        .notifications-card-header p {
+            color: #98a4b5;
+            font-size: 12px;
+            margin: 0;
+        }
+
+    .unread-pill {
+        color: #a15e00;
+        background: #fff4d8;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+        .unread-pill i {
+            font-size: 7px;
+            vertical-align: middle;
+        }
+
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 22px 24px;
+        border-bottom: 1px solid #edf0f4;
+        transition: background .18s ease;
+    }
+
+        .notification-item:last-child {
+            border-bottom: 0;
+        }
+
+        .notification-item:hover {
+            background: #fbfdff;
+        }
+
+        .notification-item.is-unread {
+            background: linear-gradient(90deg, #fff, #f8fbff);
+            border-right: 4px solid #246bce;
+            padding-right: 20px;
+        }
+
+            .notification-item.is-unread:hover {
+                background: #f4f9ff;
+            }
+
+    .notification-icon {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 13px;
+        font-size: 19px;
+    }
+
+    .unread-icon {
+        color: #246bce;
+        background: #e5f0ff;
+    }
+
+    .read-icon {
+        color: #8a98aa;
+        background: #f0f2f5;
+    }
+
+    .notification-content {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .notification-title-line {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+
+        .notification-title-line h3 {
+            overflow: hidden;
+            color: #293b55;
+            font-size: 14px;
+            font-weight: 800;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin: 0;
+        }
+
+    .notification-item.is-read .notification-title-line h3 {
+        font-weight: 650;
+    }
+
+    .new-label {
+        color: #246bce;
+        background: #eaf2ff;
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .notification-content p {
+        color: #718096;
+        font-size: 12px;
+        line-height: 1.8;
+        margin: 0 0 8px;
+    }
+
+    .notification-time {
+        color: #a1adbd;
+        font-size: 10px;
+    }
+
+    .notification-action {
+        flex-shrink: 0;
+        padding-top: 3px;
+    }
+
+    .read-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #246bce;
+        background: #fff;
+        border: 1px solid #cfe0f8;
+        border-radius: 8px;
+        padding: 7px 10px;
+        font-size: 10px;
+        font-weight: 700;
+        transition: all .18s ease;
+    }
+
+        .read-button:hover {
+            color: #fff;
+            background: #246bce;
+            border-color: #246bce;
+        }
+
+    .read-state {
+        color: #93a0b1;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+        .read-state i {
+            color: #2c9a4b;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+    .empty-notifications {
+        padding: 75px 20px;
+        text-align: center;
+    }
+
+    .empty-notifications-icon {
+        width: 75px;
+        height: 75px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: auto;
+        color: #246bce;
+        background: #edf5ff;
+        border-radius: 23px;
+        font-size: 32px;
+    }
+
+    .empty-notifications h3 {
+        color: #293b55;
+        font-size: 16px;
+        margin: 17px 0 7px;
+    }
+
+    .empty-notifications p {
+        color: #98a4b5;
+        font-size: 12px;
+        margin-bottom: 20px;
+    }
+
+    @@media (max-width: 767.98px) {
+        .notifications-card-header {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 19px;
+        }
+
+        .notification-item {
+            gap: 10px;
+            padding: 17px 15px;
+        }
+
+            .notification-item.is-unread {
+                padding-right: 11px;
+            }
+
+        .notification-icon {
+            width: 39px;
+            height: 39px;
+            font-size: 16px;
+        }
+
+        .notification-action {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+            .notification-action form {
+                display: flex;
+                justify-content: flex-start;
+            }
+
+        .notification-item {
+            flex-wrap: wrap;
+        }
+
+        .notification-content {
+            width: calc(100% - 54px);
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .notification-item, .read-button {
+            transition: none;
+        }
+    }
+</style>

@@ -1,0 +1,257 @@
+﻿@using System.Globalization
+@model IEnumerable<SmartServiceManagement.Areas.Identity.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "إدارة المستخدمين";
+}
+
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="mb-0">
+                    <i class="bi bi-people me-2 text-primary"></i>
+                    قائمة المستخدمين
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="app-content">
+    <div class="container-fluid">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mb-3"
+                 role="alert">
+
+                <i class="bi bi-check-circle me-1"></i>
+                @TempData["Success"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="إغلاق">
+                </button>
+            </div>
+        }
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <!-- Card Header -->
+            <div class="card-header bg-white py-3">
+                <div class="d-flex align-items-center justify-content-between gap-3">
+
+                    <div>
+                        <h4 class="mb-1 text-dark">
+                            المستخدمون المسجلون في النظام
+                        </h4>
+
+                        <small class="text-dark fw-semibold">
+                            عرض بيانات المستخدمين المسجلين
+                        </small>
+                    </div>
+
+                    <span class="badge bg-primary rounded-pill px-3 py-2">
+                        @(Model?.Count() ?? 0) مستخدم
+                    </span>
+
+                </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 users-table">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">
+                                    الصورة
+                                </th>
+
+                                <th>
+                                    الاسم الكامل
+                                </th>
+
+                                <th>
+                                    البريد الإلكتروني
+                                </th>
+
+                                <th>
+                                    رقم الهاتف
+                                </th>
+
+                                <th>
+                                    تاريخ التسجيل
+                                </th>
+
+                                <th class="text-center" style="width: 160px;">
+                                    الإجراء
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var user in Model)
+                                {
+                                    var fullName = string.IsNullOrWhiteSpace(user.FullName)
+                                    ? "غير محدد"
+                                    : user.FullName;
+
+                                    var email = string.IsNullOrWhiteSpace(user.Email)
+                                    ? "غير محدد"
+                                    : user.Email;
+
+                                    var phone = string.IsNullOrWhiteSpace(user.PhoneNumber)
+                                    ? "غير محدد"
+                                    : user.PhoneNumber;
+
+                                    var profileImage = string.IsNullOrWhiteSpace(user.ProfileImage)
+                                    ? Url.Content("~/dist/assets/img/user2-160x160.jpg")
+                                    : Url.Content(user.ProfileImage);
+
+                                    var registrationDate = user.CreatedAt
+                                    .ToLocalTime()
+                                    .ToString(
+                                    "dd/MM/yyyy",
+                                    CultureInfo.InvariantCulture
+                                    );
+
+                                    <tr>
+                                        <!-- Profile Image -->
+                                        <td>
+                                            <img src="@profileImage"
+                                                 alt="@fullName"
+                                                 class="rounded-circle border user-profile-image" />
+                                        </td>
+
+                                        <!-- Full Name -->
+                                        <td>
+                                            <span class="user-data-text fw-semibold">
+                                                @fullName
+                                            </span>
+                                        </td>
+
+                                        <!-- Email -->
+                                        <td>
+                                            <span class="user-data-text"
+                                                  dir="ltr">
+                                                @email
+                                            </span>
+                                        </td>
+
+                                        <!-- Phone -->
+                                        <td>
+                                            <span class="user-data-text"
+                                                  dir="ltr">
+                                                @phone
+                                            </span>
+                                        </td>
+
+                                        <!-- Registration Date -->
+                                        <td>
+                                            <span class="user-data-text date-value">
+                                                @registrationDate
+                                            </span>
+                                        </td>
+
+                                        <!-- Details Only -->
+                                        <td class="text-center">
+                                            <a asp-action="Details"
+                                               asp-route-id="@user.Id"
+                                               class="btn btn-sm btn-info text-white px-3"
+                                               title="عرض تفاصيل المستخدم"
+                                               aria-label="عرض تفاصيل المستخدم">
+
+                                                <i class="bi bi-eye me-1"></i>
+                                                عرض التفاصيل
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="text-center text-muted py-5">
+
+                                            <i class="bi bi-people fs-1 d-block mb-3 opacity-50"></i>
+
+                                            <h5 class="text-dark">
+                                                لا يوجد مستخدمون مسجلون
+                                            </h5>
+
+                                            <p class="mb-0 small">
+                                                ستظهر المستخدمون هنا عند تسجيلهم في النظام.
+                                            </p>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /*
+           توحيد لون بيانات المستخدمين باللون الأبيض
+           نستخدم !important حتى لا تتغلب عليها كلاسات Bootstrap
+           مثل text-dark أو text-muted.
+        */
+
+    .users-table tbody td,
+    .users-table tbody td span,
+    .users-table .user-data-text {
+        color: #ffffff !important;
+    }
+
+    .users-table tbody tr {
+        color: #ffffff !important;
+    }
+
+        .users-table tbody tr:hover td,
+        .users-table tbody tr:hover span,
+        .users-table tbody tr:hover .user-data-text {
+            color: #ffffff !important;
+        }
+
+    .users-table .date-value {
+        display: inline-block;
+        min-width: 95px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .users-table .user-profile-image {
+        width: 44px;
+        height: 44px;
+        object-fit: cover;
+    }
+
+    .users-table .btn-info {
+        color: #ffffff !important;
+    }
+
+    .users-table thead th {
+        white-space: nowrap;
+    }
+
+    @@media (max-width: 767.98px) {
+        .users-table {
+            min-width: 850px;
+        }
+    }
+</style>

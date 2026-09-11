@@ -1,0 +1,834 @@
+@using SmartServiceManagement.Models.Enums
+@using System.Globalization
+
+@model IEnumerable<SmartServiceManagement.Models.ServiceRequest>
+
+@{
+    ViewData["Title"] = "طلباتي";
+
+    var requests = Model?.ToList()
+        ?? new List<SmartServiceManagement.Models.ServiceRequest>();
+
+    var totalCount = requests.Count;
+
+    var pendingCount = requests.Count(x =>
+        x.Status == RequestStatus.Pending);
+
+    var activeCount = requests.Count(x =>
+        x.Status == RequestStatus.Accepted ||
+        x.Status == RequestStatus.InProgress);
+
+    var completedCount = requests.Count(x =>
+        x.Status == RequestStatus.Completed);
+}
+
+<div class="requests-page" dir="rtl">
+    <div class="container-fluid px-3 px-md-4 px-xl-5 py-4">
+
+        <!-- Page Header -->
+        <header class="page-header mb-4">
+            <div>
+                <div class="breadcrumb-area">
+                    <a asp-area="Customer"
+                       asp-controller="Home"
+                       asp-action="Index">
+                        لوحة العميل
+                    </a>
+
+                    <i class="bi bi-chevron-left"></i>
+
+                    <span>طلباتي</span>
+                </div>
+
+                <h1 class="page-title">
+                    طلباتي
+                </h1>
+
+                <p class="page-subtitle">
+                    تابع جميع طلبات الخدمة وحالتها من مكان واحد.
+                </p>
+            </div>
+
+            <a asp-area=""
+               asp-controller="Services"
+               asp-action="Index"
+               class="new-request-btn">
+
+                <i class="bi bi-plus-lg"></i>
+                طلب خدمة جديدة
+            </a>
+        </header>
+
+        <!-- Statistics -->
+        <section class="row g-3 mb-4">
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card stat-primary">
+                    <div class="stat-icon">
+                        <i class="bi bi-clipboard2-check"></i>
+                    </div>
+
+                    <div>
+                        <span class="stat-label">
+                            إجمالي الطلبات
+                        </span>
+
+                        <strong class="stat-value">
+                            @totalCount
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card stat-warning">
+                    <div class="stat-icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+
+                    <div>
+                        <span class="stat-label">
+                            قيد الانتظار
+                        </span>
+
+                        <strong class="stat-value">
+                            @pendingCount
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card stat-info">
+                    <div class="stat-icon">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+
+                    <div>
+                        <span class="stat-label">
+                            قيد التنفيذ
+                        </span>
+
+                        <strong class="stat-value">
+                            @activeCount
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card stat-success">
+                    <div class="stat-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+
+                    <div>
+                        <span class="stat-label">
+                            مكتملة
+                        </span>
+
+                        <strong class="stat-value">
+                            @completedCount
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Requests Card -->
+        <section class="requests-card">
+
+            <div class="requests-card-header">
+                <div>
+                    <h2>
+                        <i class="bi bi-list-check"></i>
+                        سجل الطلبات
+                    </h2>
+
+                    <p>
+                        يمكنك فتح أي طلب لمشاهدة التفاصيل الكاملة.
+                    </p>
+                </div>
+
+                <span class="requests-count">
+                    <i class="bi bi-list-ul"></i>
+                    @totalCount طلب
+                </span>
+            </div>
+
+            @if (requests.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table requests-table align-middle mb-0">
+
+                        <thead>
+                            <tr>
+                                <th>الطلب</th>
+                                <th>الخدمة</th>
+                                <th>مزود الخدمة</th>
+                                <th>تاريخ الطلب</th>
+                                <th>التاريخ المفضل</th>
+                                <th>الحالة</th>
+                                <th class="text-center">الإجراء</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in requests.OrderByDescending(x => x.RequestDate))
+                            {
+                                var statusText = item.Status switch
+                                {
+                                    RequestStatus.Pending => "قيد الانتظار",
+                                    RequestStatus.Accepted => "تم القبول",
+                                    RequestStatus.InProgress => "قيد التنفيذ",
+                                    RequestStatus.Completed => "مكتمل",
+                                    RequestStatus.Cancelled => "ملغى",
+                                    RequestStatus.Rejected => "مرفوض",
+                                    _ => item.Status.ToString()
+                                };
+
+                                var statusClass = item.Status switch
+                                {
+                                    RequestStatus.Pending => "status-pending",
+                                    RequestStatus.Accepted => "status-accepted",
+                                    RequestStatus.InProgress => "status-progress",
+                                    RequestStatus.Completed => "status-completed",
+                                    RequestStatus.Cancelled => "status-cancelled",
+                                    RequestStatus.Rejected => "status-rejected",
+                                    _ => "status-cancelled"
+                                };
+
+                                var statusIcon = item.Status switch
+                                {
+                                    RequestStatus.Pending => "bi-hourglass-split",
+                                    RequestStatus.Accepted => "bi-check2-circle",
+                                    RequestStatus.InProgress => "bi-arrow-repeat",
+                                    RequestStatus.Completed => "bi-check-circle-fill",
+                                    RequestStatus.Cancelled => "bi-x-circle",
+                                    RequestStatus.Rejected => "bi-exclamation-octagon",
+                                    _ => "bi-info-circle"
+                                };
+
+                                <tr>
+                                    <!-- Request Number -->
+                                    <td>
+                                        <span class="request-number">
+                                            #@item.RequestId
+                                        </span>
+                                    </td>
+
+                                    <!-- Service -->
+                                    <td>
+                                        <div class="service-info">
+                                            <div class="service-icon">
+                                                <i class="bi bi-tools"></i>
+                                            </div>
+
+                                            <div class="service-details">
+                                                <strong>
+                                                    @(item.Service?.ServiceName ?? "خدمة غير محددة")
+                                                </strong>
+
+                                                <small>
+                                                    @(item.Service?.Category?.CategoryName ?? "خدمة عامة")
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Provider -->
+                                    <td>
+                                        <div class="provider-info">
+                                            <i class="bi bi-person-badge"></i>
+
+                                            <span>
+                                                @(item.Service?.Provider?.CompanyName ?? "غير محدد")
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <!-- تاريخ الطلب -->
+                                    <td>
+                                        <div class="date-info">
+                                            <i class="bi bi-calendar3"></i>
+
+                                            <span>
+                                                @(item.RequestDate
+                                                                                        .ToLocalTime()
+                                                                                        .ToString("dd/MM/yyyy - hh:mm tt", CultureInfo.InvariantCulture)
+)
+                                    </span>
+                                </div>
+                            </td>
+
+
+                                    <!-- التاريخ المفضل -->
+                                    <td>
+                                @if (item.PreferredDate.HasValue)
+                                        {
+                                            <div class="date-info preferred-date">
+                                                <i class="bi bi-calendar-check"></i>
+
+                                                <span>
+                                                    @(item.PreferredDate.Value
+                                                                                            .ToLocalTime()
+                                                                                            .ToString("dd/MM/yyyy - hh:mm tt", CultureInfo.InvariantCulture)
+                                                                                            )
+                                    </span>
+                                </div>
+                                                                }
+                                        else
+                                        {
+                                            <span class="not-available">
+                                                غير محدد
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td>
+                                        <span class="status-badge @statusClass">
+                                            <i class="bi @statusIcon"></i>
+                                            @statusText
+                                        </span>
+                                    </td>
+
+                                    <!-- Action -->
+                                    <td class="text-center">
+                                        <a asp-area="Customer"
+                                           asp-controller="ServiceRequests"
+                                           asp-action="Details"
+                                           asp-route-id="@item.RequestId"
+                                           class="details-btn">
+
+                                            عرض التفاصيل
+                                            <i class="bi bi-arrow-left"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-clipboard2-x"></i>
+                    </div>
+
+                    <h3>
+                        لا توجد طلبات حتى الآن
+                    </h3>
+
+                    <p>
+                        ابدأ باكتشاف الخدمات المتاحة واطلب الخدمة التي تناسبك.
+                    </p>
+
+                    <a asp-area=""
+                       asp-controller="Services"
+                       asp-action="Index"
+                       class="new-request-btn">
+
+                        <i class="bi bi-search"></i>
+                        استكشف الخدمات
+                    </a>
+                </div>
+            }
+
+        </section>
+
+    </div>
+</div>
+
+<style>
+    .requests-page {
+        min-height: 100vh;
+        background: linear-gradient(180deg, #f8fbff 0%, #f5f7fb 100%);
+        color: #1f2937;
+    }
+
+    /* Header */
+
+    .page-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .breadcrumb-area {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+        .breadcrumb-area a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color .2s ease;
+        }
+
+            .breadcrumb-area a:hover {
+                color: #246bce;
+            }
+
+        .breadcrumb-area i {
+            color: #b7c0ce;
+            font-size: 11px;
+        }
+
+    .page-title {
+        margin: 0 0 6px;
+        color: #172b4d;
+        font-size: clamp(24px, 3vw, 32px);
+        font-weight: 800;
+        letter-spacing: -.6px;
+    }
+
+    .page-subtitle {
+        margin: 0;
+        color: #718096;
+        font-size: 14px;
+    }
+
+    .new-request-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 0;
+        border-radius: 10px;
+        padding: 11px 18px;
+        color: #fff;
+        background: linear-gradient(135deg, #246bce, #1557b0);
+        box-shadow: 0 8px 18px rgba(36, 107, 206, .2);
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+        .new-request-btn:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(36, 107, 206, .3);
+        }
+
+    /* Statistics */
+
+    .stat-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        min-height: 116px;
+        padding: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(20, 37, 63, .06);
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 6px 20px rgba(20, 37, 63, .055);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+        .stat-card::after {
+            position: absolute;
+            right: -24px;
+            bottom: -35px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: currentColor;
+            content: "";
+            opacity: .045;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 30px rgba(20, 37, 63, .11);
+        }
+
+    .stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 52px;
+        width: 52px;
+        height: 52px;
+        border-radius: 15px;
+        font-size: 23px;
+    }
+
+    .stat-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #718096;
+        font-size: 13px;
+    }
+
+    .stat-value {
+        display: block;
+        color: #172b4d;
+        font-size: 29px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .stat-primary {
+        color: #246bce;
+    }
+
+        .stat-primary .stat-icon {
+            color: #246bce;
+            background: #e8f1ff;
+        }
+
+    .stat-warning {
+        color: #b7791f;
+    }
+
+        .stat-warning .stat-icon {
+            color: #b7791f;
+            background: #fff5d8;
+        }
+
+    .stat-info {
+        color: #087f9e;
+    }
+
+        .stat-info .stat-icon {
+            color: #087f9e;
+            background: #def7ff;
+        }
+
+    .stat-success {
+        color: #218838;
+    }
+
+        .stat-success .stat-icon {
+            color: #218838;
+            background: #e3f8e8;
+        }
+
+    /* Main Card */
+
+    .requests-card {
+        overflow: hidden;
+        border: 1px solid rgba(20, 37, 63, .06);
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 8px 26px rgba(20, 37, 63, .06);
+    }
+
+    .requests-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 22px 24px;
+        border-bottom: 1px solid #edf1f5;
+    }
+
+        .requests-card-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 5px;
+            color: #172b4d;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+            .requests-card-header h2 i {
+                color: #246bce;
+            }
+
+        .requests-card-header p {
+            margin: 0;
+            color: #8995a7;
+            font-size: 12px;
+        }
+
+    .requests-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 8px 13px;
+        color: #246bce;
+        background: #edf5ff;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* Table */
+
+    .requests-table {
+        min-width: 980px;
+    }
+
+        .requests-table thead th {
+            padding: 15px 18px;
+            border-bottom: 1px solid #e8edf3;
+            color: #718096;
+            background: #fbfcfe;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .requests-table tbody td {
+            padding: 17px 18px;
+            border-bottom: 1px solid #f0f3f6;
+            color: #293b55;
+            font-size: 13px;
+        }
+
+        .requests-table tbody tr {
+            transition: background-color .18s ease;
+        }
+
+            .requests-table tbody tr:hover {
+                background-color: #fbfdff;
+            }
+
+            .requests-table tbody tr:last-child td {
+                border-bottom: 0;
+            }
+
+    .request-number {
+        display: inline-flex;
+        border-radius: 8px;
+        padding: 7px 10px;
+        color: #246bce;
+        background: #edf5ff;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .service-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 190px;
+    }
+
+    .service-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        color: #246bce;
+        background: #eaf2ff;
+        font-size: 17px;
+    }
+
+    .service-details strong {
+        display: block;
+        max-width: 190px;
+        overflow: hidden;
+        color: #293b55;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .service-details small {
+        display: block;
+        margin-top: 4px;
+        color: #94a3b8;
+        font-size: 11px;
+    }
+
+    .provider-info,
+    .date-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .provider-info {
+        color: #40516a;
+    }
+
+        .provider-info i {
+            color: #246bce;
+            font-size: 16px;
+        }
+
+    .date-info {
+        color: #52647d;
+        font-size: 12px;
+    }
+
+        .date-info > i {
+            color: #8191a8;
+        }
+
+    .preferred-date > i {
+        color: #218838;
+    }
+
+    .not-available {
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    /* Status */
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 7px 11px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        color: #946200;
+        background: #fff3cd;
+    }
+
+    .status-accepted {
+        color: #1556a3;
+        background: #e4efff;
+    }
+
+    .status-progress {
+        color: #087f9e;
+        background: #dff7fc;
+    }
+
+    .status-completed {
+        color: #19713a;
+        background: #e3f7e8;
+    }
+
+    .status-cancelled {
+        color: #667085;
+        background: #edf0f3;
+    }
+
+    .status-rejected {
+        color: #b42318;
+        background: #feeceb;
+    }
+
+    /* Details Button */
+
+    .details-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: 1px solid #cfe0f8;
+        border-radius: 8px;
+        padding: 8px 11px;
+        color: #246bce;
+        background: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all .18s ease;
+    }
+
+        .details-btn:hover {
+            color: #fff;
+            background: #246bce;
+            border-color: #246bce;
+        }
+
+    /* Empty State */
+
+    .empty-state {
+        padding: 80px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 82px;
+        height: 82px;
+        margin: 0 auto;
+        border-radius: 25px;
+        color: #246bce;
+        background: #edf5ff;
+        font-size: 36px;
+    }
+
+    .empty-state h3 {
+        margin: 18px 0 8px;
+        color: #172b4d;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .empty-state p {
+        margin-bottom: 24px;
+        color: #718096;
+        font-size: 13px;
+    }
+
+    /* Responsive */
+
+    @@media (max-width: 767.98px) {
+        .requests-page .container-fluid {
+            padding-right: 14px !important;
+            padding-left: 14px !important;
+        }
+
+        .page-header {
+            align-items: stretch;
+        }
+
+        .new-request-btn {
+            width: 100%;
+        }
+
+        .requests-card-header {
+            padding: 18px;
+        }
+
+        .requests-count {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .stat-card {
+            min-height: 100px;
+            padding: 17px;
+        }
+
+        .empty-state {
+            padding: 60px 18px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .stat-card,
+        .new-request-btn,
+        .details-btn,
+        .requests-table tbody tr {
+            transition: none;
+        }
+    }
+</style>

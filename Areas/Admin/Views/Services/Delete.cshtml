@@ -1,0 +1,310 @@
+﻿@model SmartServiceManagement.ViewModels.ServiceViewModel
+
+@{
+    ViewData["Title"] = "حذف الخدمة";
+    bool hasRequests = ViewBag.HasRequests ?? false;
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+
+                <h1 class="m-0 @(hasRequests ? "text-warning" : "text-danger")">
+                    @(hasRequests ? "الخدمة مرتبطة بطلبات" : "حذف الخدمة")
+                </h1>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div class="card @(hasRequests ? "card-warning" : "card-danger") shadow-sm">
+
+            <div class="card-header">
+
+                <h3 class="card-title">
+
+                    @if (hasRequests)
+                    {
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span>لا يمكن حذف هذه الخدمة</span>
+                    }
+                    else
+                    {
+                        <i class="fas fa-trash me-2"></i>
+                        <span>هل أنت متأكد من حذف هذه الخدمة؟</span>
+                    }
+
+                </h3>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <!-- معلومات الخدمة -->
+
+                <div class="row mb-4 align-items-center">
+
+                    <div class="col-md-2 text-center">
+
+                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                        {
+                            <img src="@Model.ImagePath"
+                                 alt="@Model.Title"
+                                 class="rounded img-thumbnail"
+                                 style="width:120px;
+                                            height:120px;
+                                            object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <div class="bg-secondary text-white rounded
+                                            d-flex align-items-center
+                                            justify-content-center mx-auto"
+                                 style="width:100px;
+                                            height:100px;">
+
+                                <i class="fas fa-concierge-bell fa-2x"></i>
+
+                            </div>
+                        }
+
+                    </div>
+
+
+                    <div class="col-md-10">
+
+                        <h4 class="fw-bold">
+                            @Model.Title
+                        </h4>
+
+                        <p class="text-muted">
+
+                            @(string.IsNullOrEmpty(Model.Description)
+                                                        ? "لا يوجد وصف"
+                                                        : Model.Description)
+
+                        </p>
+
+
+                        <ul class="list-inline mb-0">
+
+                            <li class="list-inline-item">
+
+                                <strong>السعر:</strong>
+
+                                <span class="text-success">
+                                    @Model.Price.ToString("C")
+                                </span>
+
+                            </li>
+
+
+                            <li class="list-inline-item ms-3">
+
+                                <strong>القسم:</strong>
+
+                                @ViewBag.CategoryName
+
+                            </li>
+
+
+                            <li class="list-inline-item ms-3">
+
+                                <strong>المزود:</strong>
+
+                                @ViewBag.ProviderName
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+
+                @if (hasRequests)
+                {
+                    <!-- =========================
+                         Linked Requests Warning
+                    ========================== -->
+
+                    <div class="alert alert-warning">
+
+                        <div class="d-flex align-items-start">
+
+                            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+
+                            <div>
+
+                                <h5 class="fw-bold">
+                                    لا يمكن حذف هذه الخدمة
+                                </h5>
+
+                                <p class="mb-2">
+
+                                    هذه الخدمة مرتبطة بطلبات خدمة موجودة في النظام،
+                                    لذلك لا يمكن حذفها حتى لا تتأثر بيانات الطلبات
+                                    السابقة.
+
+                                </p>
+
+                                <p class="mb-0">
+
+                                    <strong>
+                                        الحل:
+                                    </strong>
+
+                                    يمكنك تعطيل الخدمة، وبذلك لن تكون متاحة
+                                    للاستخدام الجديد مع الاحتفاظ بالطلبات
+                                    والبيانات السابقة.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================
+                         Disable Service
+                    ========================== -->
+
+                    <div class="alert alert-info">
+
+                        <i class="fas fa-info-circle me-2"></i>
+
+                        الخدمة حالياً
+
+                        @if (Model.IsActive)
+                        {
+                            <strong>مفعلة</strong>
+                        }
+                        else
+                        {
+                            <strong>معطلة</strong>
+                        }
+
+                        .
+
+                    </div>
+
+                }
+                else
+                {
+                    <!-- =========================
+                         Delete Warning
+                    ========================== -->
+
+                    <div class="alert alert-danger">
+
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+
+                        <strong>تحذير:</strong>
+
+                        إجراء الحذف نهائي وسيتم حذف الخدمة
+                        والصورة المرتبطة بها من السيرفر.
+
+                    </div>
+                }
+
+            </div>
+
+
+            <div class="card-footer text-end">
+
+                @if (hasRequests)
+                {
+                    <!-- =========================
+                         Disable Button
+                    ========================== -->
+                    @if (Model.IsActive)
+                    {
+                        <form asp-action="ToggleStatus"
+                              asp-route-id="@Model.Id"
+                              method="post"
+                              class="d-inline">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="btn btn-warning">
+
+                                <i class="fas fa-ban me-1"></i>
+
+                                تعطيل الخدمة
+
+                            </button>
+
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary p-2 me-2">
+
+                            <i class="fas fa-ban me-1"></i>
+
+                            الخدمة معطلة بالفعل
+
+                        </span>
+                    }
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+
+                        <i class="fas fa-arrow-right me-1"></i>
+
+                        العودة
+
+                    </a>
+
+                }
+                else
+                {
+                    <!-- =========================
+                         Delete Button
+                    ========================== -->
+
+                    <form asp-action="Delete"
+                          method="post"
+                          class="d-inline">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               asp-for="Id" />
+
+                        <button type="submit"
+                                class="btn btn-danger">
+
+                            <i class="fas fa-trash me-1"></i>
+
+                            تأكيد الحذف النهائي
+
+                        </button>
+
+                    </form>
+
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+
+                        إلغاء
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+</section>

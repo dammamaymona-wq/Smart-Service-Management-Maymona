@@ -1,0 +1,536 @@
+@model IEnumerable<SmartServiceManagement.Models.Service>
+
+@{
+    ViewData["Title"] = "الخدمات";
+    var services = Model?.ToList() ?? new List<SmartServiceManagement.Models.Service>();
+}
+
+<div class="services-catalog" dir="rtl">
+    <div class="container py-4 py-lg-5">
+        <!-- Header -->
+        <div class="catalog-header mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-2 text-muted small mb-2">
+                    <a asp-controller="Home" asp-action="Index" class="catalog-breadcrumb">الرئيسية</a>
+                    <i class="bi bi-chevron-left"></i>
+                    <span>الخدمات</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="catalog-title-icon"><i class="bi bi-grid-1x2-fill"></i></div>
+                    <div>
+                        <span class="catalog-eyebrow">اكتشف ما يناسبك</span>
+                        <h1>الخدمات المتاحة</h1>
+                        <p>خدمات حقيقية يقدمها مزودون معتمدون بالقرب منك.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="catalog-count"><strong>@services.Count</strong><span>خدمة متاحة</span></div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="catalog-filter-card mb-4">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-lg-6">
+                    <label for="search" class="filter-label">ابحث عن خدمة</label>
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input id="search" name="search" value="@ViewBag.Search" class="form-control" placeholder="مثال: صيانة كهرباء، تنظيف، سباكة..." />
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <label for="categoryId" class="filter-label">التصنيف</label>
+                    <select id="categoryId" name="categoryId" class="form-select filter-select">
+                        <option value="">كل التصنيفات</option>
+                        @foreach (var c in ViewBag.Categories)
+                        {
+                            if (ViewBag.CategoryId?.ToString() == c.CategoryId.ToString())
+                            {
+                                <option value="@c.CategoryId" selected>@c.CategoryName</option>
+                            }
+                            else
+                            {
+                                <option value="@c.CategoryId">@c.CategoryName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-primary filter-button w-100">
+                        <i class="bi bi-funnel ms-1"></i>
+                        بحث
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Heading -->
+        <div class="results-heading mb-3">
+            <div><h2>الخدمات المتاحة الآن</h2><p>اختر الخدمة التي تحتاجها واطلبها بسهولة.</p></div>
+            @if (!string.IsNullOrWhiteSpace(ViewBag.Search as string) || ViewBag.CategoryId != null)
+            {
+                <a asp-action="Index" class="clear-filter"><i class="bi bi-x-circle"></i> إزالة الفلاتر</a>
+            }
+        </div>
+
+        <!-- Service Cards -->
+        @if (services.Any())
+        {
+            <div class="row g-4">
+                @foreach (var s in services)
+                {
+                    <div class="col-sm-6 col-xl-4">
+                        <article class="service-catalog-card h-100">
+                            <div class="catalog-image-wrap">
+                                @if (!string.IsNullOrWhiteSpace(s.Image))
+                                {
+                                    <img src="@s.Image" alt="@s.ServiceName" loading="lazy" />
+                                    <div class="catalog-image-overlay"></div>
+                                }
+                                else
+                                {
+                                    <div class="catalog-placeholder"><i class="bi bi-tools"></i><span>Smart Service</span></div>
+                                }
+                                <span class="catalog-available"><i class="bi bi-circle-fill"></i> متاحة</span>
+                                <span class="catalog-category">@(s.Category?.CategoryName ?? "خدمة عامة")</span>
+                            </div>
+                            <div class="catalog-card-body">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <h3>@s.ServiceName</h3>
+                                    <span class="catalog-price">@s.Price.ToString("0.00") <small>د.أ</small></span>
+                                </div>
+                                <p class="catalog-description">@(string.IsNullOrWhiteSpace(s.Description) ? "خدمة احترافية من مزود خدمة معتمد." : s.Description)</p>
+                                <div class="catalog-meta">
+                                    <span><i class="bi bi-person-badge"></i> @(s.Provider?.CompanyName ?? "مزود معتمد")</span>
+                                    @if (s.EstimatedDuration > 0)
+                                    {
+                                        <span><i class="bi bi-clock"></i> @s.EstimatedDuration دقيقة</span>
+                                    }
+                                </div>
+                                <div class="catalog-card-footer">
+                                    <a asp-action="Details" asp-route-id="@s.ServiceId" class="catalog-details-btn">عرض التفاصيل <i class="bi bi-arrow-left"></i></a>
+                                    <span class="trusted-label"><i class="bi bi-patch-check-fill"></i> موثوقة</span>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-catalog">
+                <div class="empty-catalog-icon"><i class="bi bi-search"></i></div>
+                <h2>لا توجد خدمات مطابقة</h2>
+                <p>جرّب تغيير كلمة البحث أو اختيار تصنيف آخر.</p>
+                <a asp-action="Index" class="btn btn-primary rounded-pill px-4">عرض كل الخدمات</a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .services-catalog {
+        min-height: calc(100vh - 80px);
+        background: #f5f8fc;
+    }
+
+    .catalog-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .catalog-breadcrumb {
+        color: #2f80c9;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .catalog-breadcrumb:hover {
+            color: #17324d;
+        }
+
+    .catalog-title-icon {
+        width: 52px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2f80c9;
+        background: #eaf3ff;
+        border-radius: 15px;
+        font-size: 23px;
+    }
+
+    .catalog-eyebrow {
+        display: block;
+        color: #2f80c9;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .catalog-header h1 {
+        color: #17324d;
+        font-size: clamp(28px, 4vw, 39px);
+        font-weight: 800;
+        margin: 0 0 6px;
+    }
+
+    .catalog-header p {
+        color: #788a9d;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .catalog-count {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 10px 15px;
+        color: #526579;
+        background: #fff;
+        border: 1px solid #e5edf5;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(20,37,63,.04);
+    }
+
+        .catalog-count strong {
+            color: #2f80c9;
+            font-size: 24px;
+        }
+
+        .catalog-count span {
+            color: #8392a3;
+            font-size: 11px;
+        }
+
+    .catalog-filter-card {
+        padding: 20px;
+        background: #fff;
+        border: 1px solid rgba(20,37,63,.05);
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(20,37,63,.045);
+    }
+
+    .filter-label {
+        display: block;
+        color: #526579;
+        font-size: 11px;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+        .search-box i {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            z-index: 1;
+            color: #8da0b3;
+            transform: translateY(-50%);
+        }
+
+        .search-box .form-control {
+            padding-right: 40px;
+        }
+
+        .filter-select, .search-box .form-control {
+            min-height: 45px;
+            color: #526579;
+            border-color: #dce6f0;
+            border-radius: 10px;
+            font-size: 12px;
+            box-shadow: none;
+        }
+
+            .filter-select:focus, .search-box .form-control:focus {
+                border-color: #75afe2;
+                box-shadow: 0 0 0 3px rgba(47,128,201,.1);
+            }
+
+    .filter-button {
+        min-height: 45px;
+        border: 0;
+        background: #2f80c9;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .filter-button:hover {
+            background: #226eaf;
+        }
+
+    .results-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+        .results-heading h2 {
+            color: #243e5a;
+            font-size: 18px;
+            font-weight: 800;
+            margin: 0 0 4px;
+        }
+
+        .results-heading p {
+            color: #8b99a9;
+            font-size: 11px;
+            margin: 0;
+        }
+
+    .clear-filter {
+        color: #2f80c9;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .service-catalog-card {
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid rgba(20,37,63,.06);
+        border-radius: 17px;
+        box-shadow: 0 7px 20px rgba(20,37,63,.05);
+        transition: transform .23s ease, box-shadow .23s ease;
+    }
+
+        .service-catalog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(20,37,63,.1);
+        }
+
+    .catalog-image-wrap {
+        position: relative;
+        height: 205px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #eaf3ff, #d3e5f9);
+    }
+
+        .catalog-image-wrap img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            transition: transform .45s cubic-bezier(.23,1,.32,1);
+        }
+
+    .service-catalog-card:hover .catalog-image-wrap img {
+        transform: scale(1.06);
+    }
+
+    .catalog-image-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 38%, rgba(10,34,64,.54) 100%);
+    }
+
+    .catalog-placeholder {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 9px;
+        color: #2f80c9;
+        background: radial-gradient(circle at 25% 20%, #fff 0, transparent 38%), linear-gradient(135deg, #eaf3ff, #cfe2f8);
+    }
+
+        .catalog-placeholder i {
+            font-size: 65px;
+        }
+
+        .catalog-placeholder span {
+            color: #47709d;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+    .catalog-available, .catalog-category {
+        position: absolute;
+        z-index: 1;
+        top: 13px;
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .catalog-available {
+        right: 13px;
+        color: #19713a;
+        background: #effcf2;
+    }
+
+        .catalog-available i {
+            font-size: 6px;
+            margin-left: 3px;
+        }
+
+    .catalog-category {
+        left: 13px;
+        color: #fff;
+        background: rgba(17,50,83,.7);
+        backdrop-filter: blur(7px);
+    }
+
+    .catalog-card-body {
+        padding: 19px;
+    }
+
+        .catalog-card-body h3 {
+            overflow: hidden;
+            color: #243e5a;
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.35;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin: 0;
+        }
+
+    .catalog-price {
+        color: #2f80c9;
+        font-size: 16px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .catalog-price small {
+            color: #8292a3;
+            font-size: 9px;
+            font-weight: 500;
+        }
+
+    .catalog-description {
+        display: -webkit-box;
+        overflow: hidden;
+        min-height: 43px;
+        color: #7b8b9b;
+        font-size: 12px;
+        line-height: 1.8;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        margin: 12px 0;
+    }
+
+    .catalog-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 11px 0;
+        color: #8a99a8;
+        border-top: 1px solid #eef2f6;
+        border-bottom: 1px solid #eef2f6;
+        font-size: 10px;
+    }
+
+        .catalog-meta span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .catalog-meta i {
+            color: #2f80c9;
+            margin-left: 3px;
+        }
+
+    .catalog-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding-top: 15px;
+    }
+
+    .catalog-details-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #2f80c9;
+        font-size: 11px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+        .catalog-details-btn:hover {
+            color: #17324d;
+        }
+
+    .trusted-label {
+        color: #26924c;
+        font-size: 10px;
+    }
+
+        .trusted-label i {
+            margin-left: 3px;
+        }
+
+    .empty-catalog {
+        padding: 75px 20px;
+        text-align: center;
+        background: #fff;
+        border: 1px solid #edf1f5;
+        border-radius: 17px;
+    }
+
+    .empty-catalog-icon {
+        width: 75px;
+        height: 75px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: auto;
+        color: #2f80c9;
+        background: #edf5ff;
+        border-radius: 23px;
+        font-size: 31px;
+    }
+
+    .empty-catalog h2 {
+        color: #293b55;
+        font-size: 17px;
+        margin: 17px 0 7px;
+    }
+
+    .empty-catalog p {
+        color: #98a4b5;
+        font-size: 12px;
+        margin-bottom: 20px;
+    }
+
+    @@media (max-width: 767.98px) {
+        .catalog-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .catalog-count {
+            align-self: flex-start;
+        }
+
+        .catalog-filter-card {
+            padding: 16px;
+        }
+
+        .results-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .service-catalog-card, .catalog-image-wrap img {
+            transition: none;
+        }
+    }
+</style>

@@ -1,0 +1,456 @@
+﻿
+@model IEnumerable<SmartServiceManagement.Models.Category>
+
+@{
+    ViewData["Title"] = "إدارة الأقسام";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2 align-items-center">
+
+            <div class="col-sm-6">
+                <h1 class="m-0 text-white fw-bold">
+                    إدارة الأقسام
+                </h1>
+            </div>
+
+            <div class="col-sm-6 text-end">
+                <a asp-action="Create"
+                   class="btn btn-primary shadow-sm">
+
+                    <i class="fas fa-plus me-1"></i>
+                    إضافة قسم جديد
+
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<section class="content">
+
+    <div class="container-fluid">
+
+
+        <!-- Success Message -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm"
+                 role="alert">
+
+                <i class="fas fa-check-circle me-2"></i>
+
+                @TempData["Success"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close">
+                </button>
+
+            </div>
+        }
+
+
+        <!-- Error Message -->
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm"
+                 role="alert">
+
+                <i class="fas fa-exclamation-circle me-2"></i>
+
+                @TempData["Error"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close">
+                </button>
+
+            </div>
+        }
+
+
+        <!-- Statistics -->
+        <div class="row mb-3">
+
+            <div class="col-lg-4 col-6">
+
+                <div class="small-box bg-primary">
+
+                    <div class="inner">
+
+                        <h3>
+                            @(Model?.Count() ?? 0)
+                        </h3>
+
+                        <p>
+                            إجمالي الأقسام
+                        </p>
+
+                    </div>
+
+                    <div class="icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-4 col-6">
+
+                <div class="small-box bg-info">
+
+                    <div class="inner">
+
+                        <h3>
+                            @(Model?.Sum(c => c.Services?.Count ?? 0) ?? 0)
+                        </h3>
+
+                        <p>
+                            إجمالي الخدمات
+                        </p>
+
+                    </div>
+
+                    <div class="icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-4 col-6">
+
+                <div class="small-box bg-success">
+
+                    <div class="inner">
+
+                        <h3>
+                            @(Model?.Count(c => c.Services != null && c.Services.Any()) ?? 0)
+                        </h3>
+
+                        <p>
+                            أقسام تحتوي على خدمات
+                        </p>
+
+                    </div>
+
+                    <div class="icon">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Categories Card -->
+        <div class="card card-outline card-primary shadow-sm">
+
+            <!-- Card Header -->
+            <div class="card-header">
+
+                <h3 class="card-title text-white fw-bold">
+
+                    <i class="fas fa-layer-group me-2"></i>
+
+                    الأقسام المسجلة
+
+                </h3>
+
+            </div>
+
+
+            <!-- Card Body -->
+            <div class="card-body p-0">
+
+                @if (Model != null && Model.Any())
+                {
+                    <div class="table-responsive">
+
+                        <table class="table table-dark table-hover align-middle mb-0">
+
+                            <thead class="table-secondary text-dark">
+
+                                <tr>
+
+                                    <th class="text-center"
+                                        style="width:70px;">
+                                        #
+                                    </th>
+
+                                    <th class="text-center"
+                                        style="width:100px;">
+                                        الصورة
+                                    </th>
+
+                                    <th>
+                                        اسم القسم
+                                    </th>
+
+                                    <th>
+                                        الوصف
+                                    </th>
+
+                                    <th class="text-center"
+                                        style="width:140px;">
+                                        الخدمات
+                                    </th>
+
+                                    <th style="width:160px;">
+                                        تاريخ الإنشاء
+                                    </th>
+
+                                    <th class="text-center"
+                                        style="width:280px;">
+                                        الإجراءات
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                @{
+                                    int counter = 1;
+                                }
+
+
+                                @foreach (var category in Model)
+                                {
+                                    <tr>
+
+                                        <!-- Number -->
+                                        <td class="text-center">
+
+                                            <span class="fw-bold text-primary">
+                                                @counter
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Image -->
+                                        <td class="text-center">
+
+                                            @if (!string.IsNullOrEmpty(category.Image))
+                                            {
+                                                <img src="@category.Image"
+                                                     alt="@category.CategoryName"
+                                                     class="rounded img-thumbnail"
+                                                     style="width:55px;
+                                                                        height:55px;
+                                                                        object-fit:cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-secondary text-white rounded d-inline-flex align-items-center justify-content-center"
+                                                     style="width:55px;
+                                                                        height:55px;">
+
+                                                    <i class="fas fa-layer-group"></i>
+
+                                                </div>
+                                            }
+
+                                        </td>
+
+
+                                        <!-- Category Name -->
+                                        <td>
+
+                                            <div class="fw-bold text-white">
+                                                @category.CategoryName
+                                            </div>
+
+                                            <small class="text-white-50">
+                                                قسم خدمات
+                                            </small>
+
+                                        </td>
+
+
+                                        <!-- Description -->
+                                        <td>
+
+                                            @if (!string.IsNullOrWhiteSpace(category.Description))
+                                            {
+                                                var description = category.Description;
+
+                                                if (description.Length > 70)
+                                                {
+                                                    description =
+                                                    description.Substring(0, 70) + "...";
+                                                }
+
+                                                <span class="text-white-50">
+                                                    @description
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-white-50">
+                                                    لا يوجد وصف
+                                                </span>
+                                            }
+
+                                        </td>
+
+
+                                        <!-- Services Count -->
+                                        <td class="text-center">
+
+                                            <span class="badge bg-info text-dark px-3 py-2">
+
+                                                <i class="fas fa-tools me-1"></i>
+
+                                                @(category.Services?.Count ?? 0)
+                                                خدمة
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Created Date -->
+                                        <td>
+
+                                            <div class="fw-bold text-white">
+                                                @category.CreatedAt.ToString("dd/MM/yyyy")
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- Actions -->
+                                        <td class="text-center">
+
+                                            <div class="btn-group btn-group-sm"
+                                                 role="group">
+
+
+                                                <!-- Details -->
+                                                <a asp-action="Details"
+                                                   asp-route-id="@category.CategoryId"
+                                                   class="btn btn-primary me-1 rounded"
+                                                   data-bs-toggle="tooltip"
+                                                   title="عرض التفاصيل">
+
+                                                    <i class="fas fa-eye me-1"></i>
+                                                    تفاصيل
+
+                                                </a>
+
+
+                                                <!-- Edit -->
+                                                <a asp-action="Edit"
+                                                   asp-route-id="@category.CategoryId"
+                                                   class="btn btn-warning text-dark me-1 rounded"
+                                                   data-bs-toggle="tooltip"
+                                                   title="تعديل القسم">
+
+                                                    <i class="fas fa-edit me-1"></i>
+                                                    تعديل
+
+                                                </a>
+
+
+                                                <!-- Delete -->
+                                                <a asp-action="Delete"
+                                                   asp-route-id="@category.CategoryId"
+                                                   class="btn btn-danger rounded"
+                                                   data-bs-toggle="tooltip"
+                                                   title="حذف القسم">
+
+                                                    <i class="fas fa-trash me-1"></i>
+                                                    حذف
+
+                                                </a>
+
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+                                    counter++;
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <!-- Empty State -->
+
+                    <div class="text-center text-muted py-5">
+
+                        <i class="fas fa-layer-group fa-3x mb-3"></i>
+
+                        <h5>
+                            لا يوجد أقسام مسجلة
+                        </h5>
+
+                        <p>
+                            لم يتم إضافة أي قسم للخدمات حتى الآن في النظام.
+                        </p>
+
+                        <a asp-action="Create"
+                           class="btn btn-primary shadow-sm">
+
+                            <i class="fas fa-plus me-1"></i>
+                            إضافة أول قسم
+
+                        </a>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var tooltipTriggerList =
+                [].slice.call(
+                    document.querySelectorAll('[data-bs-toggle="tooltip"]')
+                );
+
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+
+            });
+
+        });
+
+    </script>
+
+}

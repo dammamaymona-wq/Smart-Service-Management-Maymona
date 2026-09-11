@@ -1,0 +1,40 @@
+﻿@model SmartServiceManagement.ViewModels.UserRolesViewModel
+@{
+    ViewData["Title"] = "تعديل أدوار المستخدم";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card card-warning">
+            <div class="card-header">
+                <h3 class="card-title m-0">تعديل الأدوار للمستخدم: <strong>@Model.Email</strong></h3>
+            </div>
+            <form asp-action="ManageUserRoles" method="post">
+                <div class="card-body">
+                    <input type="hidden" asp-for="UserId" />
+                    <input type="hidden" asp-for="Email" />
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    <p class="text-muted">اختر الأدوار المراد منحها لهذا المستخدم:</p>
+
+                    <div class="list-group">
+                        @for (int i = 0; i < Model.Roles.Count; i++)
+                        {
+                            <label class="list-group-item d-flex align-items-center gap-2 cursor-pointer">
+                                <input type="hidden" asp-for="@Model.Roles[i].RoleName" />
+                                <input class="form-check-input me-2" type="checkbox" asp-for="@Model.Roles[i].IsSelected" id="role_@i" />
+                                <span class="fw-bold">@Model.Roles[i].RoleName</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i> حفظ الأدوار
+                    </button>
+                    <a asp-controller="User" asp-action="Index" class="btn btn-secondary">إلغاء</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

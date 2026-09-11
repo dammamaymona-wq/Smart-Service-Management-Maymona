@@ -1,0 +1,296 @@
+@using SmartServiceManagement.Models.Enums
+@model SmartServiceManagement.Models.ServiceRequest
+
+@{
+    ViewData["Title"] = "تفاصيل طلب الخدمة";
+
+    var statusText = Model.Status switch
+    {
+        RequestStatus.Pending => "قيد الانتظار",
+        RequestStatus.Accepted => "تم قبول الطلب",
+        RequestStatus.InProgress => "قيد التنفيذ",
+        RequestStatus.Completed => "مكتمل",
+        RequestStatus.Cancelled => "ملغى",
+        RequestStatus.Rejected => "مرفوض",
+        _ => Model.Status.ToString()
+    };
+
+    var statusClass = Model.Status switch
+    {
+        RequestStatus.Pending => "bg-warning text-dark",
+        RequestStatus.Accepted => "bg-primary",
+        RequestStatus.InProgress => "bg-info text-dark",
+        RequestStatus.Completed => "bg-success",
+        RequestStatus.Cancelled => "bg-secondary",
+        RequestStatus.Rejected => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    var statusIcon = Model.Status switch
+    {
+        RequestStatus.Pending => "bi-hourglass-split",
+        RequestStatus.Accepted => "bi-check2-circle",
+        RequestStatus.InProgress => "bi-arrow-repeat",
+        RequestStatus.Completed => "bi-check-circle-fill",
+        RequestStatus.Cancelled => "bi-x-circle",
+        RequestStatus.Rejected => "bi-exclamation-octagon",
+        _ => "bi-info-circle"
+    };
+}
+
+<div class="app-content" dir="rtl">
+    <div class="container-fluid py-4">
+
+        <!-- Page Header -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-2 text-muted small mb-2">
+                    <a asp-area="Customer"
+                       asp-controller="Home"
+                       asp-action="Index"
+                       class="text-decoration-none text-muted">
+                        لوحة العميل
+                    </a>
+                    <i class="bi bi-chevron-left"></i>
+                    <span>تفاصيل الطلب</span>
+                </div>
+                <h1 class="h3 fw-bold mb-1">تفاصيل طلب الخدمة</h1>
+                <p class="text-muted mb-0">مراجعة كاملة لمعلومات الطلب وحالته الحالية.</p>
+            </div>
+
+            <a asp-area="Customer"
+               asp-controller="ServiceRequests"
+               asp-action="Index"
+               class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-right ms-1"></i>
+                العودة إلى طلباتي
+            </a>
+        </div>
+
+        <!-- Status Banner -->
+        <div class="card border-0 shadow-sm overflow-hidden mb-4">
+            <div class="card-body p-4">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-8">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0"
+                                 style="width:64px;height:64px;font-size:28px;">
+                                <i class="bi bi-tools"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small mb-1">طلب رقم #@Model.RequestId</div>
+                                <h2 class="h4 fw-bold mb-1">@Model.Service?.ServiceName</h2>
+                                <div class="text-muted small">
+                                    <i class="bi bi-calendar3 ms-1"></i>
+                                    تم الإرسال في @Model.RequestDate.ToLocalTime().ToString("yyyy/MM/dd - hh:mm tt")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-lg-start">
+                        <div class="text-muted small mb-2">الحالة الحالية</div>
+                        <span class="badge @statusClass rounded-pill px-3 py-2 fs-6">
+                            <i class="bi @statusIcon ms-1"></i>
+                            @statusText
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Main Details -->
+            <div class="col-xl-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <h3 class="h5 fw-bold mb-0">
+                            <i class="bi bi-clipboard2-check text-primary ms-2"></i>
+                            معلومات الطلب
+                        </h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="info-tile">
+                                    <div class="info-icon bg-primary-subtle text-primary">
+                                        <i class="bi bi-person-badge"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">مزود الخدمة</div>
+                                        <div class="fw-semibold">@(Model.Service?.Provider?.CompanyName ?? "غير محدد")</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-tile">
+                                    <div class="info-icon bg-success-subtle text-success">
+                                        <i class="bi bi-calendar-check"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">التاريخ المفضل</div>
+                                        <div class="fw-semibold">
+                                            @(Model.PreferredDate.HasValue
+                                                                                        ? Model.PreferredDate.Value.ToLocalTime().ToString("yyyy/MM/dd")
+                                                                                        : "لم يتم تحديده")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-tile">
+                                    <div class="info-icon bg-warning-subtle text-warning-emphasis">
+                                        <i class="bi bi-geo-alt"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">عنوان تنفيذ الخدمة</div>
+                                        <div class="fw-semibold">@(Model.CustomerAddress ?? "لم يتم تحديده")</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-tile">
+                                    <div class="info-icon bg-info-subtle text-info-emphasis">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">آخر تحديث</div>
+                                        <div class="fw-semibold">
+                                            @(Model.UpdatedAt.HasValue
+                                                                                        ? Model.UpdatedAt.Value.ToLocalTime().ToString("yyyy/MM/dd - hh:mm tt")
+                                                                                        : "لا يوجد تحديث بعد")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <h3 class="h5 fw-bold mb-0">
+                            <i class="bi bi-chat-left-text text-primary ms-2"></i>
+                            وصف المشكلة أو الطلب
+                        </h3>
+                    </div>
+                    <div class="card-body px-4 pb-4">
+                        <div class="description-box">
+                            @if (string.IsNullOrWhiteSpace(Model.ProblemDescription))
+                            {
+                                <span class="text-muted">لم تتم إضافة وصف للمشكلة.</span>
+                            }
+                            else
+                            {
+                                @Model.ProblemDescription
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side Summary -->
+            <div class="col-xl-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <h3 class="h5 fw-bold mb-0">ملخص الطلب</h3>
+                    </div>
+                    <div class="card-body px-4 pb-4">
+                        <div class="summary-row">
+                            <span class="text-muted">رقم الطلب</span>
+                            <strong>#@Model.RequestId</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span class="text-muted">الخدمة</span>
+                            <strong class="text-end">@Model.Service?.ServiceName</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span class="text-muted">السعر التقريبي</span>
+                            <strong>@(Model.Service != null ? Model.Service.Price.ToString("0.00") + " د.أ" : "-")</strong>
+                        </div>
+                        <div class="summary-row border-0 pb-0">
+                            <span class="text-muted">الحالة</span>
+                            <span class="badge @statusClass rounded-pill">@statusText</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm bg-primary text-white">
+                    <div class="card-body p-4">
+                        <i class="bi bi-headset display-6"></i>
+                        <h3 class="h5 fw-bold mt-3">هل تحتاج إلى مساعدة؟</h3>
+                        <p class="small opacity-75 mb-3">يمكنك التواصل مع فريق الدعم إذا كان لديك استفسار حول هذا الطلب.</p>
+                        <a asp-area="Customer"
+                           asp-controller="Notifications"
+                           asp-action="Index"
+                           class="btn btn-light text-primary rounded-pill px-4">
+                            عرض الإشعارات
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .info-tile {
+        min-height: 86px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px;
+        border: 1px solid rgba(0, 0, 0, .06);
+        border-radius: 14px;
+        background: #fbfcfe;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+        .info-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(25, 42, 70, .08);
+        }
+
+    .info-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+
+    .description-box {
+        min-height: 120px;
+        padding: 18px;
+        border-radius: 14px;
+        background: #f8f9fb;
+        border: 1px dashed #dce2ea;
+        line-height: 1.9;
+        white-space: pre-line;
+    }
+
+    .summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 15px 0;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .card {
+        border-radius: 16px;
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .info-tile {
+            transition: none;
+        }
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

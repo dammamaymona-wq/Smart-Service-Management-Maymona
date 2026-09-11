@@ -1,0 +1,3780 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SmartServiceManagement.Data
+@using SmartServiceManagement.Models
+@using SmartServiceManagement.Models.Enums
+@inject ApplicationDbContext _context
+
+@{
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString();
+    var actionName = ViewContext.RouteData.Values["action"]?.ToString();
+    var areaName = ViewContext.RouteData.Values["area"]?.ToString();
+
+    var isHomePage = string.Equals(controllerName, "Home", StringComparison.OrdinalIgnoreCase)
+                     && string.Equals(actionName, "Index", StringComparison.OrdinalIgnoreCase)
+                     && string.IsNullOrWhiteSpace(areaName);
+
+    var activeServicesCount = 0;
+    var approvedProvidersCount = 0;
+    var usersCount = 0;
+    var requestsCount = 0;
+    var completedRequestsCount = 0;
+    var pendingRequestsCount = 0;
+
+    var homeServices = new List<Service>();
+    var homeProviders = new List<Provider>();
+
+    if (isHomePage)
+    {
+        activeServicesCount = await _context.Services
+            .AsNoTracking()
+            .CountAsync(s => s.IsActive);
+
+        approvedProvidersCount = await _context.Providers
+            .AsNoTracking()
+            .CountAsync(p => p.Status == ProviderStatus.Approved);
+
+        usersCount = await _context.Users.CountAsync();
+
+        requestsCount = await _context.ServiceRequests
+            .AsNoTracking()
+            .CountAsync();
+
+        completedRequestsCount = await _context.ServiceRequests
+            .AsNoTracking()
+            .CountAsync(r => r.Status == RequestStatus.Completed);
+
+        pendingRequestsCount = await _context.ServiceRequests
+            .AsNoTracking()
+            .CountAsync(r => r.Status == RequestStatus.Pending);
+
+        homeServices = await _context.Services
+            .AsNoTracking()
+            .Where(s => s.IsActive)
+            .OrderByDescending(s => s.ServiceId)
+            .Take(8)
+            .ToListAsync();
+
+        homeProviders = await _context.Providers
+            .AsNoTracking()
+            .Where(p => p.Status == ProviderStatus.Approved)
+            .OrderByDescending(p => p.ProviderId)
+            .Take(6)
+            .ToListAsync();
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>@ViewData["Title"] - Smart Service Management</title>
+
+    <meta name="description"
+          content="Smart Service Management is a platform for discovering services, requesting services, connecting customers with providers, and managing service requests.">
+
+    <meta name="keywords"
+          content="Smart Service Management, services, providers, service requests, Palestine">
+
+    <!-- Favicons -->
+    <link href="~/Admin/assets/img/favicon.png" rel="icon">
+    <link href="~/Admin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+
+    <link href="https://fonts.gstatic.com"
+          rel="preconnect"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Mukta:wght@200;300;400;500;600;700;800&family=Abel:wght@400&display=swap"
+          rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="~/Admin/assets/vendor/bootstrap/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="~/Admin/assets/vendor/bootstrap-icons/bootstrap-icons.css"
+          rel="stylesheet">
+
+    <link href="~/Admin/assets/vendor/aos/aos.css"
+          rel="stylesheet">
+
+    <link href="~/Admin/assets/vendor/swiper/swiper-bundle.min.css"
+          rel="stylesheet">
+
+    <link href="~/Admin/assets/vendor/glightbox/css/glightbox.min.css"
+          rel="stylesheet">
+
+    <!-- Main CSS File -->
+    <link href="~/Admin/assets/css/main.css"
+          rel="stylesheet">
+
+    @await RenderSectionAsync("Styles", required: false)
+
+    <!-- Lighter visual theme and reliable local images -->
+    <style>
+        :root {
+            --background-color: #f7fbff;
+            --surface-color: #ffffff;
+            --default-color: #52657a;
+            --heading-color: #24415f;
+            --accent-color: #78aee2;
+            --contrast-color: #ffffff;
+        }
+
+        body.index-page {
+            background-color: #f7fbff;
+            color: #52657a;
+        }
+
+        .about-section-image,
+        .purpose-section-image {
+            display: block;
+            width: 100%;
+            object-fit: cover;
+            box-shadow: 0 14px 34px rgba(74, 126, 177, .14);
+        }
+
+        .about-section-image {
+            height: 210px;
+        }
+
+        .purpose-section-image {
+            max-height: 260px;
+            min-height: 190px;
+        }
+
+        .about-visual-card {
+            background: linear-gradient(145deg, #ffffff 0%, #eef7ff 100%);
+            border-color: #dcecf9 !important;
+        }
+
+        .purpose-visual {
+            width: 100%;
+        }
+
+        .purpose-icon {
+            display: block;
+            margin-top: 18px;
+            color: #78aee2;
+            font-size: 54px;
+        }
+
+        .cta-image-container {
+            background: linear-gradient(145deg, #edf7ff 0%, #dceefe 100%);
+        }
+    </style>
+
+</head>
+
+<body class="index-page">
+
+    <!-- Header -->
+    <header id="header"
+            class="header d-flex align-items-center position-relative">
+
+        <div class="container-fluid position-relative d-flex align-items-center justify-content-between">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="logo d-flex align-items-center">
+
+                <h1 class="sitename">
+                    Smart Service Management
+                </h1>
+
+            </a>
+
+            <nav id="navmenu"
+                 class="navmenu">
+
+                <ul>
+
+                    <li>
+                        <a href="/#hero">
+                            Home
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/#about">
+                            About
+                        </a>
+                    </li>
+
+                    <li>
+                        <a asp-controller="Services" asp-action="Index">
+                            Services
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/#features">
+                            Features
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/#how-it-works">
+                            How It Works
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/#faq">
+                            FAQ
+                        </a>
+                    </li>
+
+                    <li>
+                        <a asp-controller="Providers" asp-action="Index">
+                            Providers
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/#contact">
+                            Contact
+                        </a>
+                    </li>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="nav-link border-0 bg-transparent">Logout</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <a asp-controller="Account"
+                               asp-action="Login">
+                                Login
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-controller="Account"
+                               asp-action="Register">
+                                Register
+                            </a>
+                        </li>
+                    }
+
+                </ul>
+
+                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+
+            </nav>
+
+        </div>
+
+    </header>
+    <!-- End Header -->
+
+
+    <main class="main">
+
+        @RenderBody()
+
+
+        @if (isHomePage)
+        {
+
+            <!-- =========================
+                 ABOUT SECTION
+            ========================== -->
+
+            <section id="about"
+                     class="about section">
+
+                <div class="container section-title"
+                     data-aos="fade-up">
+
+                    <span class="description-title">
+                        About Us
+                    </span>
+
+                    <h2>
+                        About Smart Service Management
+                    </h2>
+
+                    <p>
+                        A practical platform that brings customers,
+                        service providers, and service management together.
+                    </p>
+
+                </div>
+
+
+                <div class="container"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
+
+                    <div class="row align-items-center gy-4">
+
+                        <div class="col-lg-6">
+
+                            <div class="about-content">
+
+                                <h3>
+                                    One Place For Service Discovery And Management
+                                </h3>
+
+                                <p>
+                                    Smart Service Management helps customers
+                                    find available services, choose what they need,
+                                    and submit service requests through an organized
+                                    digital platform.
+                                </p>
+
+                                <p>
+                                    Service providers can apply to join the platform,
+                                    present their services, and manage the requests
+                                    they receive.
+                                </p>
+
+                                <p>
+                                    Administrators can manage users,
+                                    services, providers, and service requests
+                                    through the management system.
+                                </p>
+
+
+                                <div class="row gy-3 mt-3">
+
+                                    <div class="col-md-6">
+
+                                        <div class="d-flex align-items-start gap-3">
+
+                                            <i class="bi bi-search fs-2"></i>
+
+                                            <div>
+
+                                                <h5>
+                                                    Find Services
+                                                </h5>
+
+                                                <p class="mb-0">
+                                                    Browse active services
+                                                    available on the platform.
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-md-6">
+
+                                        <div class="d-flex align-items-start gap-3">
+
+                                            <i class="bi bi-clipboard-check fs-2"></i>
+
+                                            <div>
+
+                                                <h5>
+                                                    Track Requests
+                                                </h5>
+
+                                                <p class="mb-0">
+                                                    Follow the status of
+                                                    submitted service requests.
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-lg-6">
+
+                            <div class="p-4 rounded-4 border h-100 about-visual-card">
+
+                                <img src="~/Admin/assets/img/misc/misc-square-13.webp"
+                                     alt="About Smart Service Management"
+                                     class="img-fluid rounded-4 about-section-image"
+                                     loading="lazy">
+
+                                <div class="row g-4 mt-1">
+
+                                    <div class="col-6">
+
+                                        <div class="text-center p-3">
+
+                                            <i class="bi bi-grid fs-1"></i>
+
+                                            <h4 class="mt-3">
+                                                @activeServicesCount
+                                            </h4>
+
+                                            <p class="mb-0">
+                                                Active Services
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-6">
+
+                                        <div class="text-center p-3">
+
+                                            <i class="bi bi-building fs-1"></i>
+
+                                            <h4 class="mt-3">
+                                                @approvedProvidersCount
+                                            </h4>
+
+                                            <p class="mb-0">
+                                                Approved Providers
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-6">
+
+                                        <div class="text-center p-3">
+
+                                            <i class="bi bi-people fs-1"></i>
+
+                                            <h4 class="mt-3">
+                                                @usersCount
+                                            </h4>
+
+                                            <p class="mb-0">
+                                                Registered Users
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-6">
+
+                                        <div class="text-center p-3">
+
+                                            <i class="bi bi-check2-circle fs-1"></i>
+
+                                            <h4 class="mt-3">
+                                                @completedRequestsCount
+                                            </h4>
+
+                                            <p class="mb-0">
+                                                Completed Requests
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 STATS SECTION
+            ========================== -->
+
+            <section id="stats"
+                     class="stats section">
+
+                <div class="container"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
+
+                    <div class="row justify-content-center">
+
+                        <div class="col-lg-10">
+
+                            <div class="stats-wrapper">
+
+
+                                <div class="stats-item"
+                                     data-aos="zoom-in"
+                                     data-aos-delay="150">
+
+                                    <div class="icon-wrapper">
+                                        <i class="bi bi-grid"></i>
+                                    </div>
+
+                                    <span data-purecounter-start="0"
+                                          data-purecounter-end="@activeServicesCount"
+                                          data-purecounter-duration="1"
+                                          class="purecounter">
+                                    </span>
+
+                                    <p>
+                                        Available Services
+                                    </p>
+
+                                </div>
+
+
+                                <div class="stats-item"
+                                     data-aos="zoom-in"
+                                     data-aos-delay="200">
+
+                                    <div class="icon-wrapper">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+
+                                    <span data-purecounter-start="0"
+                                          data-purecounter-end="@approvedProvidersCount"
+                                          data-purecounter-duration="1"
+                                          class="purecounter">
+                                    </span>
+
+                                    <p>
+                                        Approved Providers
+                                    </p>
+
+                                </div>
+
+
+                                <div class="stats-item"
+                                     data-aos="zoom-in"
+                                     data-aos-delay="250">
+
+                                    <div class="icon-wrapper">
+                                        <i class="bi bi-clipboard-check"></i>
+                                    </div>
+
+                                    <span data-purecounter-start="0"
+                                          data-purecounter-end="@completedRequestsCount"
+                                          data-purecounter-duration="1"
+                                          class="purecounter">
+                                    </span>
+
+                                    <p>
+                                        Completed Requests
+                                    </p>
+
+                                </div>
+
+
+                                <div class="stats-item"
+                                     data-aos="zoom-in"
+                                     data-aos-delay="300">
+
+                                    <div class="icon-wrapper">
+                                        <i class="bi bi-people"></i>
+                                    </div>
+
+                                    <span data-purecounter-start="0"
+                                          data-purecounter-end="@usersCount"
+                                          data-purecounter-duration="1"
+                                          class="purecounter">
+                                    </span>
+
+                                    <p>
+                                        Registered Users
+                                    </p>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 SERVICES SECTION
+            ========================== -->
+
+            <section id="services"
+                     class="services section">
+
+                <div class="container section-title"
+                     data-aos="fade-up">
+
+                    <span class="description-title">
+                        Our Services
+                    </span>
+
+                    <h2>
+                        Available Services
+                    </h2>
+
+                    <p>
+                        Explore active services currently available
+                        through Smart Service Management.
+                    </p>
+
+                </div>
+
+
+                <div class="container"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
+
+
+                    <div class="services-header">
+
+                        <div class="row">
+
+                            <div class="col-lg-9"
+                                 data-aos="fade-right">
+
+                                <div class="services-intro">
+
+                                    <div class="services-tag">
+                                        Service Marketplace
+                                    </div>
+
+                                    <h2>
+                                        Find The Service You Need
+                                    </h2>
+
+                                    <p>
+                                        Choose from the services available
+                                        on the platform and submit a request
+                                        when you find what you need.
+                                    </p>
+
+                                    <p>
+                                        The services shown below are loaded
+                                        directly from the database and only
+                                        active services are displayed.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-lg-3"
+                                 data-aos="fade-left">
+
+                                <div class="services-stats">
+
+                                    <div class="stat-item">
+
+                                        <span class="stat-number">
+                                            @activeServicesCount
+                                        </span>
+
+                                        <span class="stat-label">
+                                            Available Services
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="stat-item">
+
+                                        <span class="stat-number">
+                                            @approvedProvidersCount
+                                        </span>
+
+                                        <span class="stat-label">
+                                            Service Providers
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="stat-item">
+
+                                        <span class="stat-number">
+                                            @requestsCount
+                                        </span>
+
+                                        <span class="stat-label">
+                                            Service Requests
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row g-4">
+
+                        @if (homeServices.Any())
+                        {
+
+                            var delay = 100;
+
+                            foreach (var service in homeServices)
+                            {
+
+                                <div class="col-lg-3 col-md-6"
+                                     data-aos="fade-up"
+                                     data-aos-delay="@delay">
+
+                                    <div class="service-card h-100">
+
+                                        <div class="service-card-inner h-100 d-flex flex-column">
+
+
+                                            @if (!string.IsNullOrWhiteSpace(service.Image))
+                                            {
+
+                                                <div class="home-service-media">
+                                                    <img src="@service.Image"
+                                                         alt="@service.ServiceName"
+                                                         loading="lazy">
+                                                    <div class="home-media-shade"></div>
+                                                    <span class="home-media-label">
+                                                        <i class="bi bi-patch-check-fill"></i>
+                                                        خدمة متاحة
+                                                    </span>
+                                                </div>
+
+                                            }
+                                            else
+                                            {
+
+                                                <div class="home-service-media home-service-placeholder">
+                                                    <i class="bi bi-tools"></i>
+                                                    <span>Smart Service</span>
+                                                </div>
+
+                                            }
+
+
+                                <h3>
+                                    @service.ServiceName
+                                </h3>
+
+
+                                <p class="flex-grow-1">
+
+                                    @(string.IsNullOrWhiteSpace(service.Description)
+                                                                        ? "Professional service available through Smart Service Management."
+                                                                        : service.Description)
+
+                                </p>
+
+
+                                @if (service.Price > 0)
+                                            {
+
+                                                <p class="mb-2">
+
+                                                    <strong>
+                                                        Price:
+                                                        @service.Price.ToString("0.00")
+                                                    </strong>
+
+                                                </p>
+
+                                            }
+
+
+                                            <a asp-controller="ServiceRequests"
+                                               asp-action="Create"
+                                               asp-route-serviceId="@service.ServiceId"
+                                               class="btn btn-sm mt-2">
+
+                                                Request Service
+
+                                                <i class="bi bi-arrow-right ms-1"></i>
+
+                                            </a>
+
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                delay += 100;
+
+                            }
+
+                        }
+                        else
+                        {
+
+                            <div class="col-12 text-center py-5">
+
+                                <i class="bi bi-inbox fs-1"></i>
+
+                                <h4 class="mt-3">
+                                    No Services Available
+                                </h4>
+
+                                <p>
+                                    There are currently no active services
+                                    to display.
+                                </p>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 FEATURES SECTION
+            ========================== -->
+
+            <section id="features"
+                     class="features section">
+
+
+                <div class="container section-title"
+                     data-aos="fade-up">
+
+                    <span class="description-title">
+                        Platform Features
+                    </span>
+
+                    <h2>
+                        Everything You Need To Manage Services
+                    </h2>
+
+                    <p>
+                        The platform supports customers,
+                        service providers, and administrators
+                        through one organized workflow.
+                    </p>
+
+                </div>
+
+
+                <div class="container"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
+
+
+                    <div class="features-overview">
+
+
+                        <div class="main-heading"
+                             data-aos="fade-right"
+                             data-aos-delay="200">
+
+                            <h2>
+                                Simple Service Management
+                            </h2>
+
+                            <p>
+                                Smart Service Management brings
+                                the main service activities into one place
+                                so users can find services, submit requests,
+                                and follow progress more easily.
+                            </p>
+
+                            <p>
+                                The system also provides role-based management
+                                for administrators and service providers.
+                            </p>
+
+
+                            <div class="achievement-badges">
+
+
+                                <div class="achievement">
+
+                                    <span class="achievement-icon">
+                                        <i class="bi bi-shield-check"></i>
+                                    </span>
+
+                                    <div class="achievement-info">
+
+                                        <span class="achievement-value">
+                                            Organized
+                                        </span>
+
+                                        <span class="achievement-label">
+                                            User &amp; Service Management
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="achievement">
+
+                                    <span class="achievement-icon">
+                                        <i class="bi bi-clock-history"></i>
+                                    </span>
+
+                                    <div class="achievement-info">
+
+                                        <span class="achievement-value">
+                                            Trackable
+                                        </span>
+
+                                        <span class="achievement-label">
+                                            Service Request Status
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="features-card-wrapper"
+                             data-aos="fade-left"
+                             data-aos-delay="300">
+
+
+                            <div class="features-row">
+
+
+                                <div class="feature-card feature-primary"
+                                     data-aos="zoom-in"
+                                     data-aos-delay="200">
+
+                                    <div class="feature-icon">
+                                        <i class="bi bi-person-check"></i>
+                                    </div>
+
+                                    <div class="feature-details">
+
+                                        <h3>
+                                            Customer Accounts
+                                        </h3>
+
+                                        <p>
+                                            Customers can register,
+                                            browse services,
+                                            submit requests,
+                                            and follow their service activity.
+                                        </p>
+
+                                        <div class="feature-status active">
+
+                                            <span class="status-indicator"></span>
+
+                                            <span class="status-text">
+                                                Available
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="feature-card"
+                                     data-aos="zoom-in"
+                                     data-aos-delay="300">
+
+                                    <div class="feature-icon">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+
+                                    <div class="feature-details">
+
+                                        <h3>
+                                            Provider Management
+                                        </h3>
+
+                                        <p>
+                                            Providers can apply to join
+                                            the platform and manage the
+                                            services they offer after approval.
+                                        </p>
+
+                                        <div class="feature-status pending">
+
+                                            <span class="status-indicator"></span>
+
+                                            <span class="status-text">
+                                                Supported
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="features-row">
+
+
+                                <div class="feature-card"
+                                     data-aos="zoom-in"
+                                     data-aos-delay="400">
+
+                                    <div class="feature-icon">
+                                        <i class="bi bi-kanban"></i>
+                                    </div>
+
+                                    <div class="feature-details">
+
+                                        <h3>
+                                            Service Requests
+                                        </h3>
+
+                                        <p>
+                                            Service requests move through
+                                            the workflow with clear statuses
+                                            for the relevant users.
+                                        </p>
+
+                                        <div class="feature-status active">
+
+                                            <span class="status-indicator"></span>
+
+                                            <span class="status-text">
+                                                Operational
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="feature-card"
+                                     data-aos="zoom-in"
+                                     data-aos-delay="500">
+
+                                    <div class="feature-icon">
+                                        <i class="bi bi-bell"></i>
+                                    </div>
+
+                                    <div class="feature-details">
+
+                                        <h3>
+                                            Notifications
+                                        </h3>
+
+                                        <p>
+                                            Users can receive platform
+                                            notifications related to
+                                            their service activities
+                                            and requests.
+                                        </p>
+
+                                        <div class="feature-status scheduled">
+
+                                            <span class="status-indicator"></span>
+
+                                            <span class="status-text">
+                                                Supported
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="additional-features"
+                         data-aos="fade-up"
+                         data-aos-delay="100">
+
+                        <div class="row gx-4 gy-4">
+
+
+                            <div class="col-lg-4 col-md-6"
+                                 data-aos="fade-up"
+                                 data-aos-delay="200">
+
+                                <div class="additional-feature-card">
+
+                                    <div class="icon-container">
+                                        <i class="bi bi-search"></i>
+                                    </div>
+
+                                    <h4>
+                                        Service Discovery
+                                    </h4>
+
+                                    <p>
+                                        Customers can explore active
+                                        services and choose the service
+                                        that matches their needs.
+                                    </p>
+
+                                    <div class="feature-tag active">
+                                        <i class="bi bi-check-circle"></i>
+                                        Available
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-lg-4 col-md-6"
+                                 data-aos="fade-up"
+                                 data-aos-delay="300">
+
+                                <div class="additional-feature-card">
+
+                                    <div class="icon-container">
+                                        <i class="bi bi-clipboard-data"></i>
+                                    </div>
+
+                                    <h4>
+                                        Request Management
+                                    </h4>
+
+                                    <p>
+                                        Service requests are stored
+                                        and managed through a clear
+                                        request workflow.
+                                    </p>
+
+                                    <div class="feature-tag active">
+                                        <i class="bi bi-check-circle"></i>
+                                        Available
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-lg-4 col-md-6"
+                                 data-aos="fade-up"
+                                 data-aos-delay="400">
+
+                                <div class="additional-feature-card">
+
+                                    <div class="icon-container">
+                                        <i class="bi bi-shield-lock"></i>
+                                    </div>
+
+                                    <h4>
+                                        Role-Based Access
+                                    </h4>
+
+                                    <p>
+                                        Different user roles help organize
+                                        access to customer, provider,
+                                        and administrative functions.
+                                    </p>
+
+                                    <div class="feature-tag active">
+                                        <i class="bi bi-check-circle"></i>
+                                        Available
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 PLATFORM ROLES
+            ========================== -->
+
+            <section id="platform-roles"
+                     class="features-alt section">
+
+
+                <div class="container"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
+
+
+                    <div class="row g-4">
+
+
+                        <div class="col-lg-4">
+
+                            <ul class="nav nav-tabs flex-column"
+                                role="tablist"
+                                data-aos="fade-right"
+                                data-aos-delay="200">
+
+
+                                <li class="nav-item">
+
+                                    <a class="nav-link active"
+                                       data-bs-toggle="tab"
+                                       data-bs-target="#role-customer"
+                                       role="tab">
+
+                                        <div class="d-flex align-items-center">
+
+                                            <div class="icon-box">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+
+                                            <div class="ms-3">
+
+                                                <h4>
+                                                    Customers
+                                                </h4>
+
+                                                <p>
+                                                    Find and request services
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                    </a>
+
+                                </li>
+
+
+                                <li class="nav-item">
+
+                                    <a class="nav-link"
+                                       data-bs-toggle="tab"
+                                       data-bs-target="#role-provider"
+                                       role="tab">
+
+                                        <div class="d-flex align-items-center">
+
+                                            <div class="icon-box">
+                                                <i class="bi bi-building"></i>
+                                            </div>
+
+                                            <div class="ms-3">
+
+                                                <h4>
+                                                    Service Providers
+                                                </h4>
+
+                                                <p>
+                                                    Offer and manage services
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                    </a>
+
+                                </li>
+
+
+                                <li class="nav-item">
+
+                                    <a class="nav-link"
+                                       data-bs-toggle="tab"
+                                       data-bs-target="#role-admin"
+                                       role="tab">
+
+                                        <div class="d-flex align-items-center">
+
+                                            <div class="icon-box">
+                                                <i class="bi bi-speedometer2"></i>
+                                            </div>
+
+                                            <div class="ms-3">
+
+                                                <h4>
+                                                    Administrators
+                                                </h4>
+
+                                                <p>
+                                                    Manage the platform
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                    </a>
+
+                                </li>
+
+
+                                <li class="nav-item">
+
+                                    <a class="nav-link"
+                                       data-bs-toggle="tab"
+                                       data-bs-target="#role-requests"
+                                       role="tab">
+
+                                        <div class="d-flex align-items-center">
+
+                                            <div class="icon-box">
+                                                <i class="bi bi-clipboard-check"></i>
+                                            </div>
+
+                                            <div class="ms-3">
+
+                                                <h4>
+                                                    Service Requests
+                                                </h4>
+
+                                                <p>
+                                                    Follow request progress
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                    </a>
+
+                                </li>
+
+
+                            </ul>
+
+                        </div>
+
+
+                        <div class="col-lg-8">
+
+                            <div class="tab-content"
+                                 data-aos="fade-up"
+                                 data-aos-delay="300">
+
+
+                                <!-- Customer -->
+
+                                <div class="tab-pane fade active show"
+                                     id="role-customer"
+                                     role="tabpanel">
+
+                                    <div class="content-box">
+
+                                        <div class="row g-4 align-items-center">
+
+                                            <div class="col-lg-7">
+
+                                                <h3>
+                                                    For Customers
+                                                </h3>
+
+                                                <p>
+                                                    Customers can create an account,
+                                                    browse active services,
+                                                    and submit a request for
+                                                    the service they need.
+                                                </p>
+
+                                                <p class="highlight">
+                                                    The platform keeps request
+                                                    information organized so
+                                                    customers can follow its
+                                                    current status.
+                                                </p>
+
+                                                <ul class="features-list">
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Browse available services
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Submit service requests
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Follow request status
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Receive relevant notifications
+                                                        </span>
+                                                    </li>
+
+                                                </ul>
+
+                                            </div>
+
+
+                                            <div class="col-lg-5 text-center">
+
+                                                <i class="bi bi-person-check"
+                                                   style="font-size:120px;">
+                                                </i>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Provider -->
+
+                                <div class="tab-pane fade"
+                                     id="role-provider"
+                                     role="tabpanel">
+
+                                    <div class="content-box">
+
+                                        <div class="row g-4 align-items-center">
+
+                                            <div class="col-lg-7">
+
+                                                <h3>
+                                                    For Service Providers
+                                                </h3>
+
+                                                <p>
+                                                    Service providers can apply
+                                                    to join the platform by
+                                                    submitting their company
+                                                    and service information.
+                                                </p>
+
+                                                <p class="highlight">
+                                                    After administrator approval,
+                                                    providers can participate
+                                                    in the platform and manage
+                                                    their offered services.
+                                                </p>
+
+                                                <ul class="features-list">
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Submit a provider application
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Present company information
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Manage offered services
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Handle service requests
+                                                        </span>
+                                                    </li>
+
+                                                </ul>
+
+                                            </div>
+
+
+                                            <div class="col-lg-5 text-center">
+
+                                                <i class="bi bi-building-check"
+                                                   style="font-size:120px;">
+                                                </i>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Admin -->
+
+                                <div class="tab-pane fade"
+                                     id="role-admin"
+                                     role="tabpanel">
+
+                                    <div class="content-box">
+
+                                        <div class="row g-4 align-items-center">
+
+                                            <div class="col-lg-7">
+
+                                                <h3>
+                                                    For Administrators
+                                                </h3>
+
+                                                <p>
+                                                    Administrators have the
+                                                    tools needed to organize
+                                                    the main parts of the platform.
+                                                </p>
+
+                                                <p class="highlight">
+                                                    Management includes users,
+                                                    service providers, services,
+                                                    service requests, and
+                                                    platform notifications.
+                                                </p>
+
+                                                <ul class="features-list">
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Manage users and roles
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Review provider applications
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Manage services and categories
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Monitor service requests
+                                                        </span>
+                                                    </li>
+
+                                                </ul>
+
+                                            </div>
+
+
+                                            <div class="col-lg-5 text-center">
+
+                                                <i class="bi bi-speedometer2"
+                                                   style="font-size:120px;">
+                                                </i>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Requests -->
+
+                                <div class="tab-pane fade"
+                                     id="role-requests"
+                                     role="tabpanel">
+
+                                    <div class="content-box">
+
+                                        <div class="row g-4 align-items-center">
+
+                                            <div class="col-lg-7">
+
+                                                <h3>
+                                                    Service Request Workflow
+                                                </h3>
+
+                                                <p>
+                                                    A service request starts
+                                                    when a customer chooses
+                                                    a service and submits
+                                                    the required request information.
+                                                </p>
+
+                                                <p class="highlight">
+                                                    The request then follows
+                                                    the status workflow managed
+                                                    by the platform and the
+                                                    relevant users.
+                                                </p>
+
+                                                <ul class="features-list">
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Choose a service
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Submit the request
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Follow the request status
+                                                        </span>
+                                                    </li>
+
+                                                    <li>
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>
+                                                            Complete the service
+                                                        </span>
+                                                    </li>
+
+                                                </ul>
+
+                                            </div>
+
+
+                                            <div class="col-lg-5 text-center">
+
+                                                <i class="bi bi-arrow-repeat"
+                                                   style="font-size:120px;">
+                                                </i>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 CALL TO ACTION
+            ========================== -->
+
+            <section id="call-to-action"
+                     class="call-to-action section">
+
+
+                <div class="container"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
+
+
+                    <div class="cta-wrapper">
+
+
+                        <div class="cta-shapes">
+
+                            <div class="shape shape-1"></div>
+
+                            <div class="shape shape-2"></div>
+
+                            <div class="shape shape-3"></div>
+
+                        </div>
+
+
+                        <div class="row g-0 align-items-center">
+
+
+                            <div class="col-lg-7">
+
+                                <div class="cta-content p-5"
+                                     data-aos="fade-right"
+                                     data-aos-delay="200">
+
+
+                                    <span class="badge-custom">
+                                        Smart Service Management
+                                    </span>
+
+
+                                    <h2 class="mt-4 mb-4">
+                                        Find Services. Submit Requests.
+                                        Stay Organized.
+                                    </h2>
+
+
+                                    <p class="mb-4">
+                                        Use one platform to discover services,
+                                        connect with approved providers,
+                                        and manage service requests.
+                                    </p>
+
+
+                                    <div class="row benefits-row mb-5">
+
+
+                                        <div class="col-md-6"
+                                             data-aos="fade-up"
+                                             data-aos-delay="400">
+
+                                            <div class="benefit-item">
+
+                                                <div class="icon-box">
+                                                    <i class="bi bi-search"></i>
+                                                </div>
+
+                                                <div class="benefit-content">
+
+                                                    <h5>
+                                                        Discover Services
+                                                    </h5>
+
+                                                    <p>
+                                                        Explore active services
+                                                        directly from the platform.
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="col-md-6"
+                                             data-aos="fade-up"
+                                             data-aos-delay="500">
+
+                                            <div class="benefit-item">
+
+                                                <div class="icon-box">
+                                                    <i class="bi bi-clipboard-check"></i>
+                                                </div>
+
+                                                <div class="benefit-content">
+
+                                                    <h5>
+                                                        Manage Requests
+                                                    </h5>
+
+                                                    <p>
+                                                        Keep your service request
+                                                        activity organized and trackable.
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+
+
+                                    <div class="action-buttons">
+
+
+                                        <a href="#services"
+                                           class="btn btn-primary"
+                                           data-aos="fade-up"
+                                           data-aos-delay="600">
+
+                                            Explore Services
+
+                                        </a>
+
+
+                                        <a asp-controller="Provider"
+                                           asp-action="Apply"
+                                           class="btn btn-outline"
+                                           data-aos="fade-up"
+                                           data-aos-delay="700">
+
+                                            Become a Provider
+
+                                        </a>
+
+
+                                        <div class="guarantee-badge"
+                                             data-aos="fade-up"
+                                             data-aos-delay="800">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                            <span>
+                                                @approvedProvidersCount approved providers
+                                            </span>
+
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-lg-5">
+
+                                <div class="cta-image-container d-flex align-items-center justify-content-center p-4"
+                                     data-aos="zoom-in"
+                                     data-aos-delay="300">
+
+                                    <div class="text-center purpose-visual">
+
+                                        <img src="~/Admin/assets/img/services/services-10.webp"
+                                             alt="Our Purpose - Connected Service Management"
+                                             class="img-fluid rounded-4 purpose-section-image"
+                                             loading="lazy">
+
+                                        <i class="bi bi-diagram-3 purpose-icon"
+                                           aria-hidden="true">
+                                        </i>
+
+                                        <h4 class="mt-4">
+                                            Connected Service Management
+                                        </h4>
+
+                                        <p class="mb-0">
+                                            Customers, providers, and
+                                            administrators working through
+                                            one platform.
+                                        </p>
+
+                                    </div>
+
+
+                                    <div class="floating-element element-1">
+
+                                        <i class="bi bi-check-circle-fill"></i>
+
+                                        <span>
+                                            Organized
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="floating-element element-2">
+
+                                        <i class="bi bi-people-fill"></i>
+
+                                        <span>
+                                            @usersCount Users
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="pattern-dots"></div>
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 HOW IT WORKS
+            ========================== -->
+
+            <section id="how-it-works"
+                     class="portfolio section">
+
+
+                <div class="container section-title"
+                     data-aos="fade-up">
+
+                    <span class="description-title">
+                        How It Works
+                    </span>
+
+                    <h2>
+                        How The Platform Works
+                    </h2>
+
+                    <p>
+                        A simple workflow from finding a service
+                        to completing a service request.
+                    </p>
+
+                </div>
+
+
+                <div class="container"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
+
+
+                    <div class="row gy-4">
+
+
+                        <!-- Step 1 -->
+
+                        <div class="col-lg-3 col-md-6"
+                             data-aos="fade-up"
+                             data-aos-delay="100">
+
+                            <div class="portfolio-wrap p-4 h-100 text-center">
+
+                                <i class="bi bi-person-plus"
+                                   style="font-size:60px;">
+                                </i>
+
+                                <div class="portfolio-info position-static mt-3">
+
+                                    <div class="content">
+
+                                        <span class="category">
+                                            Step 1
+                                        </span>
+
+                                        <h4>
+                                            Create an Account
+                                        </h4>
+
+                                        <p>
+                                            Register and sign in
+                                            to use the platform features.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Step 2 -->
+
+                        <div class="col-lg-3 col-md-6"
+                             data-aos="fade-up"
+                             data-aos-delay="200">
+
+                            <div class="portfolio-wrap p-4 h-100 text-center">
+
+                                <i class="bi bi-search"
+                                   style="font-size:60px;">
+                                </i>
+
+                                <div class="portfolio-info position-static mt-3">
+
+                                    <div class="content">
+
+                                        <span class="category">
+                                            Step 2
+                                        </span>
+
+                                        <h4>
+                                            Choose a Service
+                                        </h4>
+
+                                        <p>
+                                            Browse active services
+                                            and select the service you need.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Step 3 -->
+
+                        <div class="col-lg-3 col-md-6"
+                             data-aos="fade-up"
+                             data-aos-delay="300">
+
+                            <div class="portfolio-wrap p-4 h-100 text-center">
+
+                                <i class="bi bi-send-check"
+                                   style="font-size:60px;">
+                                </i>
+
+                                <div class="portfolio-info position-static mt-3">
+
+                                    <div class="content">
+
+                                        <span class="category">
+                                            Step 3
+                                        </span>
+
+                                        <h4>
+                                            Submit a Request
+                                        </h4>
+
+                                        <p>
+                                            Provide the required information
+                                            and submit your service request.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Step 4 -->
+
+                        <div class="col-lg-3 col-md-6"
+                             data-aos="fade-up"
+                             data-aos-delay="400">
+
+                            <div class="portfolio-wrap p-4 h-100 text-center">
+
+                                <i class="bi bi-clipboard-check"
+                                   style="font-size:60px;">
+                                </i>
+
+                                <div class="portfolio-info position-static mt-3">
+
+                                    <div class="content">
+
+                                        <span class="category">
+                                            Step 4
+                                        </span>
+
+                                        <h4>
+                                            Track &amp; Complete
+                                        </h4>
+
+                                        <p>
+                                            Follow the request status
+                                            until the service is completed.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="row mt-5 justify-content-center">
+
+                        <div class="col-lg-8 text-center">
+
+                            <p class="mb-3">
+                                Service providers follow their own workflow
+                                after joining the platform, while administrators
+                                manage and monitor the system.
+                            </p>
+
+                            <a asp-controller="Provider"
+                               asp-action="Apply"
+                               class="btn btn-primary">
+
+                                Apply as a Service Provider
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 WHY CHOOSE US
+            ========================== -->
+
+            <section id="why-choose-us"
+                     class="pricing section">
+
+
+                <div class="container section-title"
+                     data-aos="fade-up">
+
+                    <span class="description-title">
+                        Why Choose Us
+                    </span>
+
+                    <h2>
+                        Why Smart Service Management?
+                    </h2>
+
+                    <p>
+                        The platform is designed around the actual
+                        service workflow of customers and providers.
+                    </p>
+
+                </div>
+
+
+                <div class="container"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
+
+
+                    <div class="row gy-4 justify-content-center">
+
+
+                        <!-- Easy Discovery -->
+
+                        <div class="col-lg-4 col-md-6"
+                             data-aos="fade-up"
+                             data-aos-delay="100">
+
+                            <div class="pricing-item h-100">
+
+                                <div class="pricing-icon">
+                                    <i class="bi bi-search"></i>
+                                </div>
+
+                                <h3>
+                                    Easy Discovery
+                                </h3>
+
+                                <div class="price">
+
+                                    <span class="currency">
+                                        <i class="bi bi-grid"></i>
+                                    </span>
+
+                                </div>
+
+                                <p class="description">
+                                    Find active services without
+                                    searching through disconnected information.
+                                </p>
+
+                                <ul class="features-list">
+
+                                    <li>
+                                        <i class="bi bi-check2"></i>
+                                        Browse available services
+                                    </li>
+
+                                    <li>
+                                        <i class="bi bi-check2"></i>
+                                        View service details
+                                    </li>
+
+                                    <li>
+                                        <i class="bi bi-check2"></i>
+                                        Start a service request
+                                    </li>
+
+                                </ul>
+
+                                <a href="#services"
+                                   class="btn-pricing">
+
+                                    Browse Services
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Organized Requests -->
+
+                        <div class="col-lg-4 col-md-6"
+                             data-aos="fade-up"
+                             data-aos-delay="200">
+
+                            <div class="pricing-item featured h-100">
+
+                                <div class="pricing-badge">
+                                    Core Feature
+                                </div>
+
+                                <div class="pricing-icon">
+                                    <i class="bi bi-clipboard-check"></i>
+                                </div>
+
+                                <h3>
+                                    Organized Requests
+                                </h3>
+
+                                <div class="price">
+
+                                    <span class="currency">
+                                        <i class="bi bi-kanban"></i>
+                                    </span>
+
+                                </div>
+
+                                <p class="description">
+                                    Keep service requests organized
+                                    and follow their progress through
+                                    the platform.
+                                </p>
+
+                                <ul class="features-list">
+
+                                    <li>
+                                        <i class="bi bi-check2"></i>
+                                        Submit service requests
+                                    </li>
+
+                                    <li>
+                                        <i class="bi bi-check2"></i>
+                                        Track request status
+                                    </li>
+
+                                    <li>
+                                        <i class="bi bi-check2"></i>
+                                        Manage service activity
+                                    </li>
+
+                                </ul>
+
+                                <a href="#how-it-works"
+                                   class="btn-pricing">
+
+                                    See How It Works
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Provider Connection -->
+
+                        <div class="col-lg-4 col-md-6"
+                             data-aos="fade-up"
+                             data-aos-delay="300">
+
+                            <div class="pricing-item h-100">
+
+                                <div class="pricing-icon">
+                                    <i class="bi bi-building-check"></i>
+                                </div>
+
+                                <h3>
+                                    Provider Connection
+                                </h3>
+
+                                <div class="price">
+
+                                    <span class="currency">
+                                        <i class="bi bi-people"></i>
+                                    </span>
+
+                                </div>
+
+                                <p class="description">
+                                    Approved service providers can
+                                    participate and offer their services
+                                    through the platform.
+                                </p>
+
+                                <ul class="features-list">
+
+                                    <li>
+                                        <i class="bi bi-check2"></i>
+                                        Provider applications
+                                    </li>
+
+                                    <li>
+                                        <i class="bi bi-check2"></i>
+                                        Service management
+                                    </li>
+
+                                    <li>
+                                        <i class="bi bi-check2"></i>
+                                        Request handling
+                                    </li>
+
+                                </ul>
+
+                                <a asp-controller="Provider"
+                                   asp-action="Apply"
+                                   class="btn-pricing">
+
+                                    Become a Provider
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 FAQ SECTION
+            ========================== -->
+
+            <section id="faq"
+                     class="faq section">
+
+
+                <div class="container section-title"
+                     data-aos="fade-up">
+
+                    <span class="description-title">
+                        Frequently Asked Questions
+                    </span>
+
+                    <h2>
+                        Frequently Asked Questions
+                    </h2>
+
+                    <p>
+                        Quick answers about accounts,
+                        services, providers, and service requests.
+                    </p>
+
+                </div>
+
+
+                <div class="container"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
+
+
+                    <div class="row align-items-start gy-4">
+
+
+                        <div class="col-lg-5"
+                             data-aos="fade-up"
+                             data-aos-delay="200">
+
+
+                            <div class="faq-sidebar">
+
+
+                                <div class="faq-image text-center p-5">
+
+                                    <i class="bi bi-question-circle"
+                                       style="font-size:140px;">
+                                    </i>
+
+                                </div>
+
+
+                                <div class="contact-box">
+
+                                    <h3>
+                                        <i class="bi bi-headset"></i>
+                                        Need Assistance?
+                                    </h3>
+
+                                    <p>
+                                        If you have a question about
+                                        services, providers, or requests,
+                                        use the contact information
+                                        at the bottom of the page.
+                                    </p>
+
+                                    <a href="#contact"
+                                       class="btn-contact">
+
+                                        Contact Us
+
+                                    </a>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-lg-7">
+
+
+                            <div class="faq-tabs">
+
+
+                                <ul class="nav nav-pills mb-4"
+                                    id="faqTabs"
+                                    role="tablist"
+                                    data-aos="fade-up"
+                                    data-aos-delay="100">
+
+
+                                    <li class="nav-item"
+                                        role="presentation">
+
+                                        <button class="nav-link active"
+                                                data-bs-toggle="pill"
+                                                data-bs-target="#general-faq"
+                                                type="button">
+
+                                            General
+
+                                        </button>
+
+                                    </li>
+
+
+                                    <li class="nav-item"
+                                        role="presentation">
+
+                                        <button class="nav-link"
+                                                data-bs-toggle="pill"
+                                                data-bs-target="#customer-faq"
+                                                type="button">
+
+                                            Customers
+
+                                        </button>
+
+                                    </li>
+
+
+                                    <li class="nav-item"
+                                        role="presentation">
+
+                                        <button class="nav-link"
+                                                data-bs-toggle="pill"
+                                                data-bs-target="#provider-faq"
+                                                type="button">
+
+                                            Providers
+
+                                        </button>
+
+                                    </li>
+
+
+                                </ul>
+
+
+                                <div class="tab-content">
+
+
+                                    <!-- General -->
+
+                                    <div class="tab-pane fade show active"
+                                         id="general-faq"
+                                         role="tabpanel">
+
+
+                                        <div class="accordion"
+                                             id="generalAccordion">
+
+
+                                            <div class="faq-item">
+
+                                                <h3>
+                                                    What is Smart Service Management?
+                                                </h3>
+
+                                                <div class="faq-content">
+
+                                                    <p>
+                                                        It is a platform that connects
+                                                        customers with service providers
+                                                        and helps manage services and
+                                                        service requests in one place.
+                                                    </p>
+
+                                                </div>
+
+                                                <i class="bi bi-chevron-down faq-toggle"></i>
+
+                                            </div>
+
+
+                                            <div class="faq-item">
+
+                                                <h3>
+                                                    How do I create an account?
+                                                </h3>
+
+                                                <div class="faq-content">
+
+                                                    <p>
+                                                        Choose Register from the main
+                                                        navigation, complete the required
+                                                        information, and submit the
+                                                        registration form.
+                                                    </p>
+
+                                                </div>
+
+                                                <i class="bi bi-chevron-down faq-toggle"></i>
+
+                                            </div>
+
+
+                                            <div class="faq-item">
+
+                                                <h3>
+                                                    How do I request a service?
+                                                </h3>
+
+                                                <div class="faq-content">
+
+                                                    <p>
+                                                        Browse the available services,
+                                                        select the service you need,
+                                                        and use the Request Service
+                                                        button to submit your request.
+                                                    </p>
+
+                                                </div>
+
+                                                <i class="bi bi-chevron-down faq-toggle"></i>
+
+                                            </div>
+
+
+                                            <div class="faq-item">
+
+                                                <h3>
+                                                    Can I track my service request?
+                                                </h3>
+
+                                                <div class="faq-content">
+
+                                                    <p>
+                                                        Yes. Your request follows
+                                                        the service request workflow
+                                                        and its current status can be
+                                                        viewed by the relevant user.
+                                                    </p>
+
+                                                </div>
+
+                                                <i class="bi bi-chevron-down faq-toggle"></i>
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- Customers -->
+
+                                    <div class="tab-pane fade"
+                                         id="customer-faq"
+                                         role="tabpanel">
+
+
+                                        <div class="accordion"
+                                             id="customerAccordion">
+
+
+                                            <div class="faq-item">
+
+                                                <h3>
+                                                    What can customers do?
+                                                </h3>
+
+                                                <div class="faq-content">
+
+                                                    <p>
+                                                        Customers can register,
+                                                        browse active services,
+                                                        submit service requests,
+                                                        and follow their request progress.
+                                                    </p>
+
+                                                </div>
+
+                                                <i class="bi bi-chevron-down faq-toggle"></i>
+
+                                            </div>
+
+
+                                            <div class="faq-item">
+
+                                                <h3>
+                                                    How do I know the status of my request?
+                                                </h3>
+
+                                                <div class="faq-content">
+
+                                                    <p>
+                                                        The platform stores the
+                                                        request status and displays
+                                                        it through the relevant
+                                                        request management pages.
+                                                    </p>
+
+                                                </div>
+
+                                                <i class="bi bi-chevron-down faq-toggle"></i>
+
+                                            </div>
+
+
+                                            <div class="faq-item">
+
+                                                <h3>
+                                                    Can I receive notifications?
+                                                </h3>
+
+                                                <div class="faq-content">
+
+                                                    <p>
+                                                        The platform includes
+                                                        notifications for users
+                                                        so relevant service activity
+                                                        can be communicated through
+                                                        the system.
+                                                    </p>
+
+                                                </div>
+
+                                                <i class="bi bi-chevron-down faq-toggle"></i>
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- Providers -->
+
+                                    <div class="tab-pane fade"
+                                         id="provider-faq"
+                                         role="tabpanel">
+
+
+                                        <div class="accordion"
+                                             id="providerAccordion">
+
+
+                                            <div class="faq-item">
+
+                                                <h3>
+                                                    How can I become a service provider?
+                                                </h3>
+
+                                                <div class="faq-content">
+
+                                                    <p>
+                                                        Use the Become a Provider
+                                                        option and submit the provider
+                                                        application. The administrator
+                                                        reviews the application before
+                                                        approval.
+                                                    </p>
+
+                                                </div>
+
+                                                <i class="bi bi-chevron-down faq-toggle"></i>
+
+                                            </div>
+
+
+                                            <div class="faq-item">
+
+                                                <h3>
+                                                    Can providers manage their services?
+                                                </h3>
+
+                                                <div class="faq-content">
+
+                                                    <p>
+                                                        Approved providers can manage
+                                                        the services they offer through
+                                                        the provider area of the platform.
+                                                    </p>
+
+                                                </div>
+
+                                                <i class="bi bi-chevron-down faq-toggle"></i>
+
+                                            </div>
+
+
+                                            <div class="faq-item">
+
+                                                <h3>
+                                                    Who approves provider applications?
+                                                </h3>
+
+                                                <div class="faq-content">
+
+                                                    <p>
+                                                        Provider applications are reviewed
+                                                        and managed by the administrator
+                                                        before the provider becomes
+                                                        approved on the platform.
+                                                    </p>
+
+                                                </div>
+
+                                                <i class="bi bi-chevron-down faq-toggle"></i>
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 PROVIDERS SECTION
+            ========================== -->
+
+            <section id="team"
+                     class="team section">
+
+
+                <div class="container"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
+
+
+                    <div class="team-header"
+                         data-aos="fade-up"
+                         data-aos-delay="200">
+
+
+                        <div class="row align-items-center">
+
+
+                            <div class="col-lg-8">
+
+                                <h2>
+                                    Approved Service Providers
+                                </h2>
+
+                                <p>
+                                    These providers are loaded directly
+                                    from the database and only approved
+                                    providers are shown.
+                                </p>
+
+                            </div>
+
+
+                            <div class="col-lg-4 d-flex justify-content-lg-end">
+
+                                <a asp-controller="Provider"
+                                   asp-action="Apply"
+                                   class="btn btn-primary">
+
+                                    Become a Provider
+
+                                </a>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="team-slider swiper init-swiper"
+                         data-aos="fade-up"
+                         data-aos-delay="300">
+
+
+                        <script type="application/json"
+                                class="swiper-config">
+
+                            {
+                              "loop": true,
+                              "speed": 700,
+                              "autoplay": {
+                                "delay": 5000
+                              },
+                              "slidesPerView": 1,
+                              "spaceBetween": 30,
+                              "navigation": {
+                                "nextEl": ".team-next",
+                                "prevEl": ".team-prev"
+                              },
+                              "breakpoints": {
+                                "576": {
+                                  "slidesPerView": 2,
+                                  "spaceBetween": 20
+                                },
+                                "992": {
+                                  "slidesPerView": 3,
+                                  "spaceBetween": 30
+                                },
+                                "1200": {
+                                  "slidesPerView": 4,
+                                  "spaceBetween": 30
+                                }
+                              }
+                            }
+
+                        </script>
+
+
+                        <div class="swiper-wrapper">
+
+
+                            @if (homeProviders.Any())
+                            {
+
+                                foreach (var provider in homeProviders)
+                                {
+
+                                    <div class="swiper-slide">
+
+
+                                        <div class="team-member">
+
+
+                                            <div class="member-image home-provider-media">
+
+
+                                                @if (!string.IsNullOrWhiteSpace(provider.Logo))
+                                                {
+
+                                                    <img src="@provider.Logo"
+                                                         alt="@provider.CompanyName"
+                                                         loading="lazy">
+                                                    <div class="home-media-shade"></div>
+                                                    <span class="home-media-label">
+                                                        <i class="bi bi-patch-check-fill"></i>
+                                                        مزود معتمد
+                                                    </span>
+
+                                                }
+                                                else
+                                                {
+
+                                                    <div class="home-provider-placeholder">
+                                                        <i class="bi bi-building"></i>
+                                                        <span>مزود معتمد</span>
+                                                    </div>
+
+                                                }
+
+
+                                </div>
+
+
+                                <div class="member-content">
+
+
+                                    <h3>
+                                        @provider.CompanyName
+                                    </h3>
+
+
+                                    <span>
+                                        @provider.City
+                                    </span>
+
+
+                                    <p>
+                                        @(string.IsNullOrWhiteSpace(provider.Description)
+                                                                                ? "Approved service provider on Smart Service Management."
+                                                                                : provider.Description)
+                                    </p>
+
+
+                                    @if (provider.ExperienceYears > 0)
+                                                {
+
+                                                    <small>
+
+                                                        <i class="bi bi-award me-1"></i>
+
+                                                        @provider.ExperienceYears years
+                                                        of experience
+
+                                                    </small>
+
+                                                }
+
+
+                                            </div>
+
+
+                                        </div>
+
+
+                                    </div>
+
+                                }
+
+                            }
+                            else
+                            {
+
+                                <div class="swiper-slide">
+
+                                    <div class="team-member">
+
+                                        <div class="member-content text-center">
+
+                                            <i class="bi bi-building-add fs-1"></i>
+
+                                            <h3 class="mt-3">
+                                                No Approved Providers Yet
+                                            </h3>
+
+                                            <p>
+                                                Service providers can apply
+                                                to join the platform and offer
+                                                their services after approval.
+                                            </p>
+
+                                            <a asp-controller="Provider"
+                                               asp-action="Apply"
+                                               class="btn btn-primary">
+
+                                                Apply Now
+
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            }
+
+
+                        </div>
+
+
+                        <div class="d-flex justify-content-center gap-2 mt-4">
+
+                            <button type="button"
+                                    class="team-control-btn team-prev"
+                                    aria-label="Previous provider">
+
+                                <i class="bi bi-chevron-left"></i>
+
+                            </button>
+
+
+                            <button type="button"
+                                    class="team-control-btn team-next"
+                                    aria-label="Next provider">
+
+                                <i class="bi bi-chevron-right"></i>
+
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 CONTACT SECTION
+            ========================== -->
+
+            <section id="contact"
+                     class="contact section">
+
+
+                <div class="container section-title"
+                     data-aos="fade-up">
+
+                    <span class="description-title">
+                        Contact
+                    </span>
+
+                    <h2>
+                        Contact Smart Service Management
+                    </h2>
+
+                    <p>
+                        For questions about services,
+                        providers, accounts, or service requests,
+                        use the available contact option.
+                    </p>
+
+                </div>
+
+
+                <div class="container">
+
+
+                    <div class="contact-wrapper">
+
+
+                        <div class="contact-info-panel">
+
+
+                            <div class="contact-info-header">
+
+                                <h3>
+                                    Platform Information
+                                </h3>
+
+                                <p>
+                                    Smart Service Management provides
+                                    one place to discover services
+                                    and manage service requests.
+                                </p>
+
+                            </div>
+
+
+                            <div class="contact-info-cards">
+
+
+                                <div class="info-card">
+
+                                    <div class="icon-container">
+                                        <i class="bi bi-pin-map-fill"></i>
+                                    </div>
+
+                                    <div class="card-content">
+
+                                        <h4>
+                                            Location
+                                        </h4>
+
+                                        <p>
+                                            Tulkarm, Palestine
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="info-card">
+
+                                    <div class="icon-container">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+
+                                    <div class="card-content">
+
+                                        <h4>
+                                            Working Hours
+                                        </h4>
+
+                                        <p>
+                                            Sunday - Thursday:
+                                            7:00 AM - 6:00 PM
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="info-card">
+
+                                    <div class="icon-container">
+                                        <i class="bi bi-grid"></i>
+                                    </div>
+
+                                    <div class="card-content">
+
+                                        <h4>
+                                            Active Services
+                                        </h4>
+
+                                        <p>
+                                            @activeServicesCount
+                                            services currently available
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="info-card">
+
+                                    <div class="icon-container">
+                                        <i class="bi bi-clipboard-check"></i>
+                                    </div>
+
+                                    <div class="card-content">
+
+                                        <h4>
+                                            Service Requests
+                                        </h4>
+
+                                        <p>
+                                            @requestsCount
+                                            requests recorded on the platform
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="social-links-panel">
+
+                                <h5>
+                                    Smart Service Management
+                                </h5>
+
+                                <p class="mb-0">
+                                    Connect customers, providers,
+                                    and service management in one
+                                    organized platform.
+                                </p>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="contact-form-panel">
+
+
+                            <div class="map-container">
+
+                                <div class="d-flex align-items-center justify-content-center h-100 p-4 text-center">
+
+                                    <div>
+
+                                        <i class="bi bi-geo-alt"
+                                           style="font-size:70px;">
+                                        </i>
+
+                                        <h4 class="mt-3">
+                                            Smart Service Management
+                                        </h4>
+
+                                        <p>
+                                            Tulkarm, Palestine
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-container">
+
+                                <h3>
+                                    Need Help?
+                                </h3>
+
+                                <p>
+                                    For support, account questions,
+                                    or service-related questions,
+                                    use the platform contact option below.
+                                </p>
+
+
+                                <div class="contact-details mt-4">
+
+
+                                    <div class="mb-3">
+
+                                        <i class="bi bi-people me-2"></i>
+
+                                        Customers and service providers
+
+                                    </div>
+
+
+                                    <div class="mb-3">
+
+                                        <i class="bi bi-clipboard-check me-2"></i>
+
+                                        Service request support
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <i class="bi bi-building me-2"></i>
+
+                                        Provider application support
+
+                                    </div>
+
+
+                                </div>
+
+
+                                <div class="d-grid mt-4">
+
+                                    <a href="#faq"
+                                       class="btn-submit text-center">
+
+                                        View FAQ
+
+                                        <i class="bi bi-question-circle ms-2"></i>
+
+                                    </a>
+
+                                </div>
+
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        }
+
+    </main>
+
+    <style>
+        .home-service-media,
+        .home-provider-media {
+            position: relative;
+            overflow: hidden;
+            min-height: 190px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #eaf2ff 0%, #d8e8ff 100%);
+        }
+
+            .home-service-media img,
+            .home-provider-media img {
+                display: block;
+                width: 100%;
+                height: 100%;
+                min-height: 190px;
+                object-fit: cover;
+                object-position: center;
+                transition: transform .45s cubic-bezier(.23, 1, .32, 1), filter .3s ease;
+            }
+
+        .service-card:hover .home-service-media img,
+        .team-member:hover .home-provider-media img {
+            transform: scale(1.06);
+            filter: saturate(1.08);
+        }
+
+        .home-media-shade {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(10, 31, 60, .02) 35%, rgba(10, 31, 60, .68) 100%);
+        }
+
+        .home-media-label {
+            position: absolute;
+            right: 14px;
+            bottom: 13px;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 10px;
+            color: #fff;
+            background: rgba(12, 36, 70, .68);
+            border: 1px solid rgba(255, 255, 255, .24);
+            border-radius: 999px;
+            backdrop-filter: blur(7px);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+            .home-media-label i {
+                color: #9fd0ff;
+            }
+
+        .home-service-placeholder,
+        .home-provider-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 190px;
+            color: #2869b6;
+            background: radial-gradient(circle at 25% 20%, #fff 0, transparent 38%), linear-gradient(135deg, #e8f2ff, #cddfff);
+        }
+
+            .home-service-placeholder i {
+                font-size: 56px;
+            }
+
+            .home-service-placeholder span,
+            .home-provider-placeholder span {
+                color: #47709d;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: .04em;
+            }
+
+        .home-provider-media,
+        .home-provider-placeholder {
+            min-height: 220px;
+        }
+
+            .home-provider-media img {
+                min-height: 220px;
+            }
+
+            .home-provider-placeholder i {
+                color: #2869b6;
+                font-size: 74px;
+            }
+
+        @@media (max-width: 575.98px) {
+            .home-service-media,
+            .home-provider-media,
+            .home-service-placeholder,
+            .home-provider-placeholder {
+                min-height: 170px;
+            }
+
+                .home-service-media img,
+                .home-provider-media img {
+                    min-height: 170px;
+                }
+        }
+
+        @@media (prefers-reduced-motion: reduce) {
+            .home-service-media img,
+            .home-provider-media img {
+                transition: none;
+            }
+        }
+    </style>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer id="footer"
+            class="footer">
+
+
+        <div class="container footer-top">
+
+
+            <div class="row gy-4">
+
+
+                <div class="col-lg-5 col-md-12 footer-about">
+
+
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="logo d-flex align-items-center">
+
+                        <span class="sitename">
+                            Smart Service Management
+                        </span>
+
+                    </a>
+
+
+                    <p>
+                        Smart Service Management connects customers
+                        with service providers and helps organize
+                        services and service requests in one place.
+                    </p>
+
+
+                    <div class="social-links d-flex mt-4">
+
+
+                        <a href="#contact"
+                           aria-label="Contact">
+
+                            <i class="bi bi-envelope"></i>
+
+                        </a>
+
+
+                        <a href="#faq"
+                           aria-label="FAQ">
+
+                            <i class="bi bi-question-circle"></i>
+
+                        </a>
+
+
+                        <a href="#services"
+                           aria-label="Services">
+
+                            <i class="bi bi-grid"></i>
+
+                        </a>
+
+
+                        <a href="#team"
+                           aria-label="Providers">
+
+                            <i class="bi bi-building"></i>
+
+                        </a>
+
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="col-lg-2 col-6 footer-links">
+
+
+                    <h4>
+                        Useful Links
+                    </h4>
+
+
+                    <ul>
+
+                        <li>
+                            <a asp-controller="Home"
+                               asp-action="Index">
+                                Home
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/#about">
+                                About
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/#services">
+                                Services
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/#how-it-works">
+                                How It Works
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/#contact">
+                                Contact
+                            </a>
+                        </li>
+
+                    </ul>
+
+
+                </div>
+
+
+                <div class="col-lg-2 col-6 footer-links">
+
+
+                    <h4>
+                        Platform
+                    </h4>
+
+
+                    <ul>
+
+                        <li>
+                            <a href="/#services">
+                                Find Services
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/#features">
+                                Features
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/#faq">
+                                FAQ
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/#team">
+                                Providers
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-controller="Provider"
+                               asp-action="Apply">
+                                Become a Provider
+                            </a>
+                        </li>
+
+                    </ul>
+
+
+                </div>
+
+
+                <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
+
+
+                    <h4>
+                        Platform Information
+                    </h4>
+
+
+                    <p>
+                        Tulkarm, Palestine
+                    </p>
+
+                    <p>
+                        Sunday - Thursday
+                    </p>
+
+                    <p>
+                        7:00 AM - 6:00 PM
+                    </p>
+
+
+                    <p class="mt-4">
+
+                        <strong>
+                            Services:
+                        </strong>
+
+                        <span>
+                            @activeServicesCount active
+                        </span>
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>
+                            Providers:
+                        </strong>
+
+                        <span>
+                            @approvedProvidersCount approved
+                        </span>
+
+                    </p>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <div class="container copyright text-center mt-4">
+
+
+            <p>
+
+                ©
+
+                <span>
+                    Copyright
+                </span>
+
+                <strong class="px-1 sitename">
+                    Smart Service Management
+                </strong>
+
+                <span>
+                    All Rights Reserved
+                </span>
+
+            </p>
+
+
+            <div class="credits">
+
+                Smart Service Management Platform
+
+            </div>
+
+
+        </div>
+
+
+    </footer>
+
+
+    <!-- Scroll Top -->
+
+    <a href="#"
+       id="scroll-top"
+       class="scroll-top d-flex align-items-center justify-content-center">
+
+        <i class="bi bi-arrow-up-short"></i>
+
+    </a>
+
+
+    <!-- Preloader -->
+
+    <div id="preloader"></div>
+
+
+    <!-- Vendor JS Files -->
+
+    <script src="~/Admin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/Admin/assets/vendor/aos/aos.js"></script>
+
+    <script src="~/Admin/assets/vendor/purecounter/purecounter_vanilla.js"></script>
+
+    <script src="~/Admin/assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+
+    <script src="~/Admin/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+
+    <script src="~/Admin/assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+    <script src="~/Admin/assets/vendor/glightbox/js/glightbox.min.js"></script>
+
+
+    <!-- Main JS File -->
+
+    <script src="~/Admin/assets/js/main.js"></script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>
+
+
+
+<!--      _Layout_SmartServiceManagement_Modified.cshtml   -->

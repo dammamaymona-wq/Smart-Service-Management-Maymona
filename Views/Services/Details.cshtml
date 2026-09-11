@@ -1,0 +1,503 @@
+@model SmartServiceManagement.Models.Service
+
+@{
+    ViewData["Title"] = Model.ServiceName;
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+}
+
+<div class="service-details-page" dir="rtl">
+    <div class="container py-4 py-lg-5">
+        <!-- Breadcrumb -->
+        <div class="d-flex align-items-center gap-2 text-muted small mb-4">
+            <a asp-controller="Home" asp-action="Index" class="breadcrumb-link">الرئيسية</a>
+            <i class="bi bi-chevron-left"></i>
+            <a asp-controller="Services" asp-action="Index" class="breadcrumb-link">الخدمات</a>
+            <i class="bi bi-chevron-left"></i>
+            <span>@Model.ServiceName</span>
+        </div>
+
+        <div class="service-detail-card">
+            <div class="row g-0">
+                <!-- Service Image -->
+                <div class="col-lg-6">
+                    <div class="service-hero-image">
+                        @if (!string.IsNullOrWhiteSpace(Model.Image))
+                        {
+                            <img src="@Model.Image" alt="@Model.ServiceName" />
+                            <div class="service-image-overlay"></div>
+                        }
+                        else
+                        {
+                            <div class="service-image-placeholder">
+                                <i class="bi bi-tools"></i>
+                                <span>Smart Service</span>
+                            </div>
+                        }
+                        <div class="image-badge">
+                            <i class="bi bi-patch-check-fill"></i>
+                            خدمة متاحة
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Content -->
+                <div class="col-lg-6">
+                    <div class="service-detail-content">
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                            <span class="category-badge">
+                                <i class="bi bi-grid-1x2-fill"></i>
+                                @(Model.Category?.CategoryName ?? "خدمة عامة")
+                            </span>
+                            <span class="availability-label">
+                                <i class="bi bi-circle-fill"></i>
+                                متاحة الآن
+                            </span>
+                        </div>
+
+                        <h1>@Model.ServiceName</h1>
+                        <p class="service-description">
+                            @(string.IsNullOrWhiteSpace(Model.Description)
+                                                        ? "احصل على خدمة احترافية من خلال مزود خدمة معتمد على منصة Smart Service."
+                                                        : Model.Description)
+                        </p>
+
+                        <div class="service-highlights">
+                            <div class="highlight-item">
+                                <div class="highlight-icon price-icon"><i class="bi bi-wallet2"></i></div>
+                                <div><span>السعر التقديري</span><strong>@Model.Price.ToString("0.00") <small>د.أ</small></strong></div>
+                            </div>
+                            <div class="highlight-item">
+                                <div class="highlight-icon duration-icon"><i class="bi bi-clock-history"></i></div>
+                                <div><span>المدة المتوقعة</span><strong>@Model.EstimatedDuration <small>دقيقة</small></strong></div>
+                            </div>
+                        </div>
+
+                        <div class="provider-card">
+                            <div class="provider-avatar"><i class="bi bi-person-badge-fill"></i></div>
+                            <div class="provider-info"><span>يقدمها لك</span><strong>@(Model.Provider?.CompanyName ?? "مزود خدمة معتمد")</strong><small><i class="bi bi-geo-alt"></i> @(Model.Provider?.City ?? "متاح حسب الموقع")</small></div>
+                            @if (Model.Provider != null)
+                            {
+                                <a asp-controller="Providers" asp-action="Details" asp-route-id="@Model.Provider.ProviderId" class="provider-link" title="عرض ملف المزود"><i class="bi bi-arrow-left"></i></a>
+                            }
+                        </div>
+
+                        <div class="service-actions">
+                            @if (isAuthenticated)
+                            {
+                                <a asp-controller="ServiceRequests" asp-action="Create" asp-route-serviceId="@Model.ServiceId" class="btn btn-primary btn-lg rounded-pill flex-grow-1">
+                                    <i class="bi bi-calendar2-check ms-2"></i>
+                                    اطلب الخدمة الآن
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="/Services/Details/@Model.ServiceId" class="btn btn-primary btn-lg rounded-pill flex-grow-1">
+                                    <i class="bi bi-box-arrow-in-left ms-2"></i>
+                                    سجل الدخول لطلب الخدمة
+                                </a>
+                            }
+                            <a asp-controller="Services" asp-action="Index" class="back-button" title="العودة للخدمات"><i class="bi bi-arrow-right"></i></a>
+                        </div>
+                        <div class="secure-note"><i class="bi bi-shield-check"></i> طلبك يتم إرساله بأمان إلى مزود الخدمة المعتمد.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust Strip -->
+        <div class="trust-strip mt-4">
+            <div><i class="bi bi-patch-check-fill"></i><span><strong>مزودون معتمدون</strong><small>نختار شركاء موثوقين</small></span></div>
+            <div><i class="bi bi-lightning-charge-fill"></i><span><strong>استجابة سريعة</strong><small>نتابع طلبك باستمرار</small></span></div>
+            <div><i class="bi bi-headset"></i><span><strong>دعم مستمر</strong><small>نحن هنا لمساعدتك</small></span></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .service-details-page {
+        min-height: calc(100vh - 80px);
+        background: #f5f8fc;
+    }
+
+    .breadcrumb-link {
+        color: #2f80c9;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+        .breadcrumb-link:hover {
+            color: #17324d;
+        }
+
+    .service-detail-card {
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid rgba(20,37,63,.06);
+        border-radius: 22px;
+        box-shadow: 0 15px 35px rgba(20,37,63,.08);
+    }
+
+    .service-hero-image {
+        position: relative;
+        height: 100%;
+        min-height: 555px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #eaf3ff, #d6e7fb);
+    }
+
+        .service-hero-image img {
+            width: 100%;
+            height: 100%;
+            min-height: 555px;
+            display: block;
+            object-fit: cover;
+            transition: transform .5s cubic-bezier(.23,1,.32,1);
+        }
+
+    .service-detail-card:hover .service-hero-image img {
+        transform: scale(1.035);
+    }
+
+    .service-image-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(10,34,64,.03) 45%, rgba(10,34,64,.68) 100%);
+    }
+
+    .image-badge {
+        position: absolute;
+        right: 24px;
+        bottom: 23px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 13px;
+        color: #fff;
+        background: rgba(16,55,101,.72);
+        border: 1px solid rgba(255,255,255,.25);
+        border-radius: 999px;
+        backdrop-filter: blur(8px);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .image-badge i {
+            color: #9fd0ff;
+        }
+
+    .service-image-placeholder {
+        min-height: 555px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 14px;
+        color: #2f80c9;
+        background: radial-gradient(circle at 25% 20%, #fff 0, transparent 38%), linear-gradient(135deg, #eaf3ff, #cfe2f8);
+    }
+
+        .service-image-placeholder i {
+            font-size: 105px;
+        }
+
+        .service-image-placeholder span {
+            color: #47709d;
+            font-weight: 800;
+            letter-spacing: .06em;
+        }
+
+    .service-detail-content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 46px 44px;
+    }
+
+    .category-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        width: fit-content;
+        color: #2f80c9;
+        background: #eaf3ff;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .availability-label {
+        color: #26924c;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+        .availability-label i {
+            font-size: 7px;
+            margin-left: 4px;
+        }
+
+    .service-detail-content h1 {
+        color: #17324d;
+        font-size: clamp(30px, 4vw, 48px);
+        font-weight: 800;
+        line-height: 1.15;
+        margin: 17px 0 14px;
+    }
+
+    .service-description {
+        color: #64778b;
+        font-size: 15px;
+        line-height: 1.9;
+        margin-bottom: 28px;
+    }
+
+    .service-highlights {
+        display: flex;
+        gap: 12px;
+        padding: 17px 0;
+        border-top: 1px solid #edf1f5;
+        border-bottom: 1px solid #edf1f5;
+    }
+
+    .highlight-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 145px;
+    }
+
+    .highlight-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        font-size: 18px;
+    }
+
+    .price-icon {
+        color: #2676bb;
+        background: #eaf3ff;
+    }
+
+    .duration-icon {
+        color: #b77612;
+        background: #fff3dd;
+    }
+
+    .highlight-item span {
+        display: block;
+        color: #8a98a8;
+        font-size: 10px;
+        margin-bottom: 4px;
+    }
+
+    .highlight-item strong {
+        display: block;
+        color: #243e5a;
+        font-size: 16px;
+    }
+
+    .highlight-item small {
+        color: #8090a2;
+        font-size: 10px;
+        font-weight: 500;
+    }
+
+    .provider-card {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin: 20px 0;
+        padding: 13px;
+        background: #f8fbff;
+        border: 1px solid #e7f0fa;
+        border-radius: 14px;
+    }
+
+    .provider-avatar {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #2f80c9;
+        background: #e4f0ff;
+        border-radius: 12px;
+        font-size: 20px;
+    }
+
+    .provider-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+        .provider-info span, .provider-info small {
+            display: block;
+            color: #8a98a8;
+            font-size: 10px;
+        }
+
+        .provider-info strong {
+            display: block;
+            overflow: hidden;
+            color: #28435f;
+            font-size: 13px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin: 3px 0;
+        }
+
+        .provider-info small i {
+            color: #2f80c9;
+        }
+
+    .provider-link {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2f80c9;
+        background: #fff;
+        border: 1px solid #d9e8f8;
+        border-radius: 9px;
+        text-decoration: none;
+    }
+
+    .service-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .service-actions .btn-primary {
+            padding: 13px 20px;
+            background: #2f80c9;
+            border-color: #2f80c9;
+            box-shadow: 0 8px 17px rgba(47,128,201,.2);
+        }
+
+            .service-actions .btn-primary:hover {
+                background: #226eaf;
+                border-color: #226eaf;
+                transform: translateY(-1px);
+            }
+
+    .back-button {
+        width: 49px;
+        height: 49px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #60758b;
+        background: #f5f8fc;
+        border: 1px solid #e1e8f0;
+        border-radius: 50%;
+        text-decoration: none;
+        transition: all .18s ease;
+    }
+
+        .back-button:hover {
+            color: #2f80c9;
+            background: #eaf3ff;
+            border-color: #bcd8f4;
+        }
+
+    .secure-note {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #8795a5;
+        font-size: 10px;
+        margin-top: 14px;
+    }
+
+        .secure-note i {
+            color: #26924c;
+            font-size: 15px;
+        }
+
+    .trust-strip {
+        display: flex;
+        justify-content: space-around;
+        gap: 20px;
+        padding: 20px 26px;
+        background: #fff;
+        border: 1px solid rgba(20,37,63,.05);
+        border-radius: 16px;
+        box-shadow: 0 7px 20px rgba(20,37,63,.04);
+    }
+
+        .trust-strip > div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .trust-strip > div > i {
+                color: #2f80c9;
+                font-size: 23px;
+            }
+
+        .trust-strip span {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .trust-strip strong {
+            color: #2c4561;
+            font-size: 12px;
+        }
+
+        .trust-strip small {
+            color: #94a1b0;
+            font-size: 10px;
+        }
+
+    @@media (max-width: 991.98px) {
+        .service-hero-image, .service-image-placeholder, .service-hero-image img {
+            min-height: 380px;
+        }
+
+        .service-detail-content {
+            padding: 32px 27px;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .service-detail-content {
+            padding: 27px 20px;
+        }
+
+        .service-highlights {
+            flex-wrap: wrap;
+        }
+
+        .highlight-item {
+            min-width: 130px;
+        }
+
+        .trust-strip {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 18px;
+        }
+
+        .service-detail-content h1 {
+            font-size: 31px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .service-hero-image img, .back-button, .service-actions .btn-primary {
+            transition: none;
+        }
+    }
+</style>

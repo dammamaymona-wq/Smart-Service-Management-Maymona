@@ -1,0 +1,333 @@
+﻿@model IEnumerable<SmartServiceManagement.Models.Notification>
+
+@{
+    ViewData["Title"] = "الإشعارات";
+
+    var totalNotifications = Model?.Count() ?? 0;
+    var unreadNotifications = Model?.Count(n => !n.IsRead) ?? 0;
+    var readNotifications = Model?.Count(n => n.IsRead) ?? 0;
+}
+
+<div class="container-fluid">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="fas fa-bell text-warning me-2"></i>
+                الإشعارات
+            </h2>
+
+            <p class="text-muted mb-0">
+                عرض وإدارة جميع الإشعارات والتنبيهات
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- Statistics -->
+    <div class="row g-3 mb-4">
+
+        <!-- Total -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body d-flex align-items-center">
+
+                    <div class="rounded-circle bg-primary bg-opacity-10
+                                d-flex align-items-center justify-content-center me-3"
+                         style="width:55px;height:55px;">
+
+                        <i class="fas fa-bell text-primary fa-lg"></i>
+
+                    </div>
+
+                    <div>
+                        <small class="text-muted d-block">
+                            إجمالي الإشعارات
+                        </small>
+
+                        <h4 class="fw-bold mb-0">
+                            @totalNotifications
+                        </h4>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Unread -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body d-flex align-items-center">
+
+                    <div class="rounded-circle bg-danger bg-opacity-10
+                                d-flex align-items-center justify-content-center me-3"
+                         style="width:55px;height:55px;">
+
+                        <i class="fas fa-envelope text-danger fa-lg"></i>
+
+                    </div>
+
+                    <div>
+                        <small class="text-muted d-block">
+                            غير مقروءة
+                        </small>
+
+                        <h4 class="fw-bold mb-0">
+                            @unreadNotifications
+                        </h4>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Read -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body d-flex align-items-center">
+
+                    <div class="rounded-circle bg-success bg-opacity-10
+                                d-flex align-items-center justify-content-center me-3"
+                         style="width:55px;height:55px;">
+
+                        <i class="fas fa-envelope-open text-success fa-lg"></i>
+
+                    </div>
+
+                    <div>
+                        <small class="text-muted d-block">
+                            مقروءة
+                        </small>
+
+                        <h4 class="fw-bold mb-0">
+                            @readNotifications
+                        </h4>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Notifications Card -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+
+        <!-- Card Header -->
+        <div class="card-header bg-dark py-3">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <h5 class="mb-1 fw-bold text-white">
+                        <i class="fas fa-bell me-2"></i>
+                        قائمة الإشعارات
+                    </h5>
+
+                    <small class="text-white-50">
+                        جميع التنبيهات والإشعارات في النظام
+                    </small>
+
+                </div>
+
+                <span class="badge bg-primary px-3 py-2">
+                    @totalNotifications إشعار
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Notifications List -->
+        <div class="card-body p-0">
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="list-group list-group-flush">
+
+                    @foreach (var notification in Model)
+                    {
+                        <div class="list-group-item p-4
+                                     @(notification.IsRead ? "" : "bg-light")">
+
+                            <div class="d-flex align-items-start">
+
+                                <!-- Notification Icon -->
+                                <div class="rounded-circle
+                                             @(notification.IsRead
+                                                                              ? "bg-secondary"
+                                                                              : "bg-warning")
+                                     d-flex align-items-center
+                                     justify-content-center me-3"
+                             style="width:50px;
+                                            height:50px;
+                                            flex-shrink:0;">
+
+                                    <i class="fas fa-bell text-white"></i>
+
+                                </div>
+
+
+                                <!-- Notification Content -->
+                                <div class="flex-grow-1">
+
+                                    <!-- Title + Status -->
+                                    <div class="d-flex justify-content-between
+                                                        align-items-start mb-2">
+
+                                        <h6 class="fw-bold mb-0">
+                                            @notification.Title
+                                        </h6>
+
+                                @if (notification.IsRead)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>
+                                                مقروء
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-circle me-1"></i>
+                                                جديد
+                                            </span>
+                                        }
+
+                                    </div>
+
+
+                                    <!-- Message -->
+                                    <p class="text-muted mb-3">
+                                        @notification.Message
+                                    </p>
+
+
+                                    <!-- User + Date -->
+                                    <div class="d-flex flex-wrap
+                                                        justify-content-between
+                                                        align-items-center">
+
+                                        <small class="text-muted">
+
+                                            <i class="fas fa-user me-1"></i>
+
+                                            @if (notification.User != null)
+                                            {
+                                                @notification.User.FullName
+                                            }
+                                            else
+                                            {
+                                                <span>
+                                                    مستخدم غير معروف
+                                                </span>
+                                            }
+
+                                        </small>
+
+
+                                        <small class="text-muted">
+
+                                            <i class="fas fa-clock me-1"></i>
+
+                                            @(notification.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt"))
+
+                                        </small>
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Action -->
+                                <div class="ms-3">
+
+                                    @if (!notification.IsRead)
+                                    {
+                                        <form asp-action="MarkAsRead"
+                                              asp-route-id="@notification.NotificationId"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-success"
+                                                    title="تحديد كمقروء">
+
+                                                <i class="fas fa-check"></i>
+
+                                            </button>
+
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="MarkAsUnread"
+                                              asp-route-id="@notification.NotificationId"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    title="تحديد كغير مقروء">
+
+                                                <i class="fas fa-envelope"></i>
+
+                                            </button>
+
+                                        </form>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <!-- Empty State -->
+                <div class="text-center py-5">
+
+                    <div class="rounded-circle bg-light
+                                    d-flex align-items-center
+                                    justify-content-center mx-auto mb-3"
+                         style="width:90px;height:90px;">
+
+                        <i class="fas fa-bell-slash fa-2x text-muted"></i>
+
+                    </div>
+
+                    <h5 class="fw-bold text-muted">
+                        لا توجد إشعارات
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        لا توجد إشعارات أو تنبيهات حاليًا.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>

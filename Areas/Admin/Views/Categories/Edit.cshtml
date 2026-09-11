@@ -1,0 +1,277 @@
+﻿@model SmartServiceManagement.Models.Category
+
+@{
+    ViewData["Title"] = "تعديل القسم";
+}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+
+        <h2 class="fw-bold mb-1">
+            <i class="fas fa-edit text-primary me-2"></i>
+            تعديل القسم
+        </h2>
+
+        <p class="text-muted mb-0">
+            تعديل بيانات القسم ومعلوماته
+        </p>
+
+    </div>
+
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8 col-xl-7">
+
+            <div class="card border-0 shadow-sm">
+
+                <!-- Card Header -->
+                <div class="card-header border-0 py-3"
+                     style="background-color: #212529;">
+
+                    <h5 class="mb-0 text-white fw-bold">
+
+                        <i class="fas fa-layer-group text-primary me-2"></i>
+
+                        تعديل بيانات القسم
+
+                    </h5>
+
+                </div>
+
+
+                <!-- Form -->
+                <form asp-action="Edit"
+                      method="post"
+                      enctype="multipart/form-data">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           asp-for="CategoryId" />
+
+                    <input type="hidden"
+                           asp-for="Image" />
+
+
+                    <div class="card-body p-4">
+
+                        <!-- Validation -->
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+
+                        <!-- Category Name -->
+                        <div class="mb-4">
+
+                            <label asp-for="CategoryName"
+                                   class="form-label fw-bold">
+
+                                <i class="fas fa-tag text-primary me-1"></i>
+
+                                اسم القسم
+
+                            </label>
+
+                            <input asp-for="CategoryName"
+                                   class="form-control"
+                                   placeholder="أدخل اسم القسم" />
+
+                            <span asp-validation-for="CategoryName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Description -->
+                        <div class="mb-4">
+
+                            <label asp-for="Description"
+                                   class="form-label fw-bold">
+
+                                <i class="fas fa-align-right text-primary me-1"></i>
+
+                                وصف القسم
+
+                            </label>
+
+                            <textarea asp-for="Description"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="أدخل وصف القسم"></textarea>
+
+                            <span asp-validation-for="Description"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Current Image -->
+                        <div class="mb-4">
+
+                            <label class="form-label fw-bold d-block">
+
+                                <i class="fas fa-image text-primary me-1"></i>
+
+                                الصورة الحالية
+
+                            </label>
+
+
+                            @if (!string.IsNullOrEmpty(Model.Image))
+                            {
+                                <div class="mb-3">
+
+                                    <img src="@Model.Image"
+                                         id="currentImage"
+                                         alt="@Model.CategoryName"
+                                         class="rounded-3 shadow-sm"
+                                         style="width:180px;
+                                                    height:180px;
+                                                    object-fit:cover;" />
+
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mb-3">
+
+                                    <div class="d-flex align-items-center
+                                                    justify-content-center
+                                                    rounded-3
+                                                    bg-light
+                                                    text-primary
+                                                    shadow-sm"
+                                         style="width:180px;
+                                                    height:180px;">
+
+                                        <i class="fas fa-layer-group fa-3x"></i>
+
+                                    </div>
+
+                                </div>
+                            }
+
+
+                            <!-- New Image -->
+                            <label class="form-label fw-bold">
+
+                                تغيير الصورة
+
+                            </label>
+
+                            <input type="file"
+                                   name="imageFile"
+                                   id="imageFile"
+                                   class="form-control"
+                                   accept="image/*" />
+
+                            <small class="text-muted">
+                                اترك الحقل فارغًا للاحتفاظ بالصورة الحالية.
+                            </small>
+
+                        </div>
+
+
+                        <!-- New Image Preview -->
+                        <div class="text-center">
+
+                            <img id="imagePreview"
+                                 src="#"
+                                 alt="معاينة الصورة الجديدة"
+                                 class="rounded-3 shadow-sm d-none"
+                                 style="width:180px;
+                                        height:180px;
+                                        object-fit:cover;" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Footer -->
+                    <div class="card-footer bg-white border-0 p-4">
+
+                        <div class="d-flex justify-content-between">
+
+                            <a asp-action="Index"
+                               class="btn btn-secondary px-4">
+
+                                <i class="fas fa-arrow-right me-1"></i>
+
+                                إلغاء
+
+                            </a>
+
+
+                            <button type="submit"
+                                    class="btn btn-success px-4">
+
+                                <i class="fas fa-save me-1"></i>
+
+                                حفظ التغييرات
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        document.getElementById("imageFile").addEventListener("change", function (event) {
+
+            const file = event.target.files[0];
+
+            const preview = document.getElementById("imagePreview");
+
+            if (file) {
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+
+                    preview.src = e.target.result;
+
+                    preview.classList.remove("d-none");
+
+                };
+
+                reader.readAsDataURL(file);
+
+            }
+            else {
+
+                preview.src = "#";
+
+                preview.classList.add("d-none");
+
+            }
+
+        });
+
+    </script>
+}

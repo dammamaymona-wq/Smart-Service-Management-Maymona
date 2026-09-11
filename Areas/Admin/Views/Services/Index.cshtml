@@ -1,0 +1,174 @@
+﻿@model IEnumerable<SmartServiceManagement.ViewModels.ServiceViewModel>
+
+@{
+    ViewData["Title"] = "إدارة الخدمات";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2 align-items-center">
+            <div class="col-sm-6">
+                <!-- تم تغيير الكلاس إلى text-white ليظهر باللون الأبيض -->
+                <h1 class="m-0 text-white fw-bold">إدارة الخدمات</h1>
+            </div>
+            <div class="col-sm-6 text-end">
+                <a asp-action="Create" class="btn btn-primary shadow-sm">
+                    <i class="fas fa-plus me-1"></i> إضافة خدمة جديدة
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm"
+         role="alert">
+
+        <i class="fas fa-check-circle me-2"></i>
+
+        @TempData["Success"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm"
+         role="alert">
+
+        <i class="fas fa-exclamation-circle me-2"></i>
+
+        @TempData["Error"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+}
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-outline card-primary shadow-sm">
+            <div class="card-header">
+                <h3 class="card-title text-white">قائمة الخدمات المتاحة</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead class="table-secondary text-dark">
+                            <tr>
+                                <th style="width: 80px;">الصورة</th>
+                                <th>اسم الخدمة</th>
+                                <th>الوصف</th>
+                                <th>السعر</th>
+                                <th>الحالة</th>
+                                <th class="text-center" style="width: 250px;">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        لا توجد خدمات مضافة حتى الآن.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(item.ImagePath))
+                                            {
+                                                <img src="@item.ImagePath" alt="@item.Title" class="rounded img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-secondary text-white rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                    <i class="fas fa-concierge-bell"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td class="fw-bold text-white">@item.Title</td>
+                                        <td class="text-white-50 text-truncate" style="max-width: 250px;">
+                                            @(string.IsNullOrEmpty(item.Description) ? "لا يوجد وصف" : item.Description)
+                                        </td>
+                                        <td class="text-success fw-bold">
+                                            @item.Price.ToString("C")
+                                        </td>
+                                        <td>
+                                            @if (item.IsActive)
+                                            {
+                                                <span class="badge bg-success">مفعلة</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">معطلة</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <!-- أزرار الإجراءات واضحة بالألوان والنصوص لتسهيل الاستخدام -->
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-area="Admin"
+                                                   asp-controller="Services"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@item.Id"
+                                                   class="btn btn-warning text-dark me-1 rounded"
+                                                   data-bs-toggle="tooltip"
+                                                   title="تعديل بيانات الخدمة">
+
+                                                    <i class="fas fa-edit me-1"></i>
+                                                    تعديل
+
+                                                </a>
+                                             
+                                                <form asp-action="ToggleStatus" asp-route-id="@item.Id" method="post" class="d-inline me-1">
+                                                    <button type="submit" class="btn @(item.IsActive ? "btn-secondary" : "btn-success") rounded" data-bs-toggle="tooltip" title="@(item.IsActive ? "تعطيل الخدمة" : "تفعيل الخدمة")">
+                                                        <i class="fas @(item.IsActive ? "fa-eye-slash" : "fa-eye") me-1"></i>
+                                                        @(item.IsActive ? "تعطيل" : "تفعيل")
+                                                    </button>
+                                                </form>
+                                                <a asp-area="Admin"
+                                                   asp-controller="Services"
+                                                   asp-action="Delete"
+                                                   asp-route-id="@item.Id"
+                                                   class="btn btn-danger rounded"
+                                                   data-bs-toggle="tooltip"
+                                                   title="حذف الخدمة">
+
+                                                    <i class="fas fa-trash me-1"></i>
+                                                    حذف
+
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // تفعيل التلميحات عند التمرير بالماوس فوق الأزرار
+        document.addEventListener("DOMContentLoaded", function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+}

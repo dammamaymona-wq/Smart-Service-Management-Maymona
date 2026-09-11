@@ -1,0 +1,486 @@
+﻿@model SmartServiceManagement.Areas.Identity.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "تعديل بيانات المستخدم";
+
+    var profileImage = string.IsNullOrWhiteSpace(Model?.ProfileImage)
+        ? Url.Content("~/dist/assets/img/user2-160x160.jpg")
+        : Url.Content(Model.ProfileImage);
+}
+
+<div class="edit-user-page" dir="rtl">
+    <div class="container-fluid px-3 px-md-4 px-xl-5 py-4">
+
+        <!-- Breadcrumb -->
+        <div class="edit-breadcrumb mb-4">
+            <a asp-action="Index">
+                <i class="bi bi-people"></i>
+                إدارة المستخدمين
+            </a>
+
+            <i class="bi bi-chevron-left"></i>
+
+            <span>تعديل بيانات المستخدم</span>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-8 col-lg-9">
+
+                <!-- Page Header -->
+                <div class="page-heading mb-4">
+                    <div>
+                        <h1>
+                            تعديل بيانات المستخدم
+                        </h1>
+
+                        <p>
+                            قم بتحديث البيانات الشخصية والصورة الخاصة بالمستخدم.
+                        </p>
+                    </div>
+
+                    <span class="edit-badge">
+                        <i class="bi bi-pencil-square"></i>
+                        وضع التعديل
+                    </span>
+                </div>
+
+                <!-- Main Card -->
+                <div class="edit-user-card">
+
+                    <!-- Card Header -->
+                    <div class="edit-card-header">
+                        <div class="header-icon">
+                            <i class="bi bi-person-gear"></i>
+                        </div>
+
+                        <div>
+                            <span>
+                                إدارة الحساب
+                            </span>
+
+                            <h2>
+                                تحديث معلومات المستخدم
+                            </h2>
+                        </div>
+                    </div>
+
+                    <!-- Form -->
+                    <form asp-action="Edit"
+                          method="post"
+                          enctype="multipart/form-data">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="edit-card-body">
+
+                            <!-- Validation -->
+                            <div asp-validation-summary="ModelOnly"
+                                 class="alert alert-danger validation-summary"
+                                 role="alert">
+                            </div>
+
+                            <!-- Profile Image -->
+                            <div class="profile-upload-section">
+                                <img id="profileImagePreview"
+                                     src="@profileImage"
+                                     alt="صورة المستخدم"
+                                     class="profile-preview" />
+
+                                <div class="profile-upload-content">
+                                    <h3>
+                                        الصورة الشخصية
+                                    </h3>
+
+                                    <p>
+                                        اختر صورة جديدة لتحديث الصورة الحالية.
+                                    </p>
+
+                                    <label for="ProfileImageFile"
+                                           class="choose-image-btn">
+
+                                        <i class="bi bi-camera"></i>
+                                        اختيار صورة جديدة
+                                    </label>
+
+                                    <input type="file"
+                                           id="ProfileImageFile"
+                                           name="ProfileImageFile"
+                                           class="d-none"
+                                           accept=".jpg,.jpeg,.png,.webp,image/*" />
+
+                                    <small id="selectedFileName"
+                                           class="selected-file-name">
+                                        لم يتم اختيار صورة جديدة
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-divider"></div>
+
+                            <!-- User Information -->
+                            <div class="section-heading">
+                                <span class="section-icon">
+                                    <i class="bi bi-person-vcard"></i>
+                                </span>
+
+                                <div>
+                                    <h3>
+                                        المعلومات الشخصية
+                                    </h3>
+
+                                    <p>
+                                        حدّث بيانات المستخدم الأساسية.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="row g-4">
+
+                                <!-- Full Name -->
+                                <div class="col-12">
+                                    <label asp-for="FullName"
+                                           class="custom-label">
+
+                                        <i class="bi bi-person"></i>
+                                        الاسم الكامل
+                                    </label>
+
+                                    <input asp-for="FullName"
+                                           class="form-control custom-input"
+                                           placeholder="أدخل الاسم الكامل" />
+
+                                    <span asp-validation-for="FullName"
+                                          class="text-danger validation-message">
+                                    </span>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-md-6">
+                                    <label asp-for="Email"
+                                           class="custom-label">
+
+                                        <i class="bi bi-envelope"></i>
+                                        البريد الإلكتروني
+                                    </label>
+
+                                    <input asp-for="Email"
+                                           type="email"
+                                           class="form-control custom-input"
+                                           placeholder="example@email.com"
+                                           dir="ltr" />
+
+                                    <span asp-validation-for="Email"
+                                          class="text-danger validation-message">
+                                    </span>
+                                </div>
+
+                                <!-- Phone -->
+                                <div class="col-md-6">
+                                    <label asp-for="PhoneNumber"
+                                           class="custom-label">
+
+                                        <i class="bi bi-telephone"></i>
+                                        رقم الهاتف
+                                    </label>
+
+                                    <input asp-for="PhoneNumber"
+                                           class="form-control custom-input"
+                                           placeholder="أدخل رقم الهاتف"
+                                           inputmode="tel"
+                                           dir="ltr" />
+
+                                    <span asp-validation-for="PhoneNumber"
+                                          class="text-danger validation-message">
+                                    </span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="edit-card-footer">
+
+                            <a asp-action="Index"
+                               class="cancel-btn">
+
+                                <i class="bi bi-arrow-right"></i>
+                                إلغاء والعودة
+                            </a>
+
+                            <button type="submit"
+                                    class="save-btn">
+
+                                <i class="bi bi-check2-circle"></i>
+                                حفظ التغييرات
+                            </button>
+
+                        </div>
+
+                    </form>
+                </div>
+
+                <p class="page-note">
+                    تأكد من صحة البيانات قبل الضغط على زر حفظ التغييرات.
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .edit-user-page {
+        min-height: 100vh;
+        background: radial-gradient( circle at top right, rgba(13, 110, 253, .08), transparent 30% ), linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
+        color: #172b4d;
+    }
+
+    .edit-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+        .edit-breadcrumb a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+            text-decoration: none;
+            transition: color .2s ease;
+        }
+
+            .edit-breadcrumb a:hover {
+                color: #0d6efd;
+            }
+
+        .edit-breadcrumb > i {
+            color: #b7c0ce;
+            font-size: 10px;
+        }
+
+    .page-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+        .page-heading h1 {
+            margin: 0 0 6px;
+            color: #172b4d;
+            font-size: clamp(25px, 4vw, 32px);
+            font-weight: 800;
+            letter-spacing: -.5px;
+        }
+
+        .page-heading p {
+            margin: 0;
+            color: #718096;
+            font-size: 13px;
+        }
+
+    .edit-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 999px;
+        padding: 9px 14px;
+        color: #946200;
+        background: #fff3cd;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .edit-user-card {
+        overflow: hidden;
+        border: 1px solid rgba(20, 37, 63, .07);
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 15px 45px rgba(20, 37, 63, .09);
+    }
+
+    .edit-card-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 24px 30px;
+        color: #fff;
+        background: linear-gradient(135deg, #0d6efd, #1557b0);
+    }
+
+    .header-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        border: 1px solid rgba(255, 255, 255, .25);
+        border-radius: 15px;
+        background: rgba(255, 255, 255, .15);
+        font-size: 21px;
+    }
+
+    .edit-card-header span {
+        display: block;
+        margin-bottom: 4px;
+        color: rgba(255, 255, 255, .72);
+        font-size: 11px;
+    }
+
+    .edit-card-header h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .edit-card-body {
+        padding: 30px;
+    }
+
+    .validation-summary:empty {
+        display: none;
+    }
+
+    .profile-upload-section {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 20px;
+        border: 1px solid #e7edf5;
+        border-radius: 16px;
+        background: #fbfcfe;
+    }
+
+    .profile-preview {
+        width: 112px;
+        height: 112px;
+        flex: 0 0 112px;
+        border: 5px solid #fff;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #fff;
+        box-shadow: 0 6px 18px rgba(20, 37, 63, .14);
+    }
+
+    .profile-upload-content h3 {
+        margin: 0 0 6px;
+        color: #172b4d;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .profile-upload-content p {
+        margin: 0 0 13px;
+        color: #8a96a8;
+        font-size: 12px;
+    }
+
+    .choose-image-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin: 0;
+        border: 1px solid #bcd4f5;
+        border-radius: 9px;
+        padding: 9px 13px;
+        color: #246bce;
+        background: #edf5ff;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+        transition: background-color .2s ease, border-color .2s ease;
+    }
+
+        .choose-image-btn:hover {
+            border-color: #246bce;
+            background: #e2efff;
+        }
+
+    .selected-file-name {
+        display: block;
+        margin-top: 8px;
+        color: #8a96a8;
+        font-size: 11px;
+    }
+
+    .form-divider {
+        height: 1px;
+        margin: 30px 0;
+        background: #edf1f5;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 22px;
+    }
+
+    .section-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        color: #0d6efd;
+        background: #eaf2ff;
+        font-size: 16px;
+    }
+
+    .section-heading h3 {
+        margin: 0 0 4px;
+        color: #172b4d;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .section-heading p {
+        margin: 0;
+        color: #8a96a8;
+        font-size: 11px;
+    }
+
+    .custom-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        color: #293b55;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+        .custom-label i {
+            width: 16px;
+            color: #0d6efd;
+            text-align: center;
+        }
+
+    .custom-input {
+        min-height: 46px;
+        border: 1px solid #dce3ec;
+        border-radius: 10px;
+        padding: 10px 14px;
+        color: #293b55;
+        background: #fbfcfe;
+        font-size: 13px;
+        transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+
+        .custom-input::placeholder {
+            color: #a7b1bf;
+        }
+
+        .custom-input:focus {
+            border-color: #86b7fe;

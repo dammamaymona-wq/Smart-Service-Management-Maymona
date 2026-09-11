@@ -1,0 +1,564 @@
+﻿@model SmartServiceManagement.Models.ServiceRequest
+
+@{
+    ViewData["Title"] = "تعديل طلب الخدمة";
+
+
+string currentStatusText = Model.Status switch
+{
+    SmartServiceManagement.Models.Enums.RequestStatus.Pending => "معلقة",
+    SmartServiceManagement.Models.Enums.RequestStatus.Accepted => "مقبولة",
+    SmartServiceManagement.Models.Enums.RequestStatus.InProgress => "قيد التنفيذ",
+    SmartServiceManagement.Models.Enums.RequestStatus.Completed => "مكتملة",
+    SmartServiceManagement.Models.Enums.RequestStatus.Cancelled => "ملغاة",
+    _ => "غير معروف"
+};
+
+
+}
+
+<div class="container-fluid py-4">
+
+    
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="fas fa-edit text-warning me-2"></i>
+                تعديل طلب الخدمة
+            </h2>
+
+            <p class="text-muted mb-0">
+                تحديث حالة الطلب رقم #@Model.RequestId
+            </p>
+        </div>
+
+        <a asp-area="Admin"
+           asp-controller="ServiceRequests"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="fas fa-arrow-right me-1"></i>
+            العودة للطلبات
+
+        </a>
+
+    </div>
+
+
+    <form asp-area="Admin"
+          asp-controller="ServiceRequests"
+          asp-action="Edit"
+          asp-route-id="@Model.RequestId"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div class="row g-4">
+
+            <!-- Main Edit Card -->
+            <div class="col-xl-8">
+
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-header bg-white border-0 py-3">
+
+                        <h5 class="fw-bold mb-0">
+
+                            <i class="fas fa-sliders text-primary me-2"></i>
+
+                            حالة الطلب
+
+                        </h5>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <!-- Current Status -->
+                        <div class="alert alert-light border mb-4">
+
+                            <div class="d-flex align-items-center">
+
+                                <div class="rounded-circle bg-primary
+                                        bg-opacity-10 text-primary
+                                        d-flex align-items-center
+                                        justify-content-center me-3"
+                                     style="width:50px;height:50px;">
+
+                                    <i class="fas fa-info-circle fs-4"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <small class="text-muted d-block">
+                                        الحالة الحالية
+                                    </small>
+
+                                    <strong>
+                                        @currentStatusText
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Status -->
+                        <div class="mb-4">
+
+                            <label for="status"
+                                   class="form-label fw-semibold">
+
+                                <i class="fas fa-flag me-1 text-primary"></i>
+
+                                حالة الطلب الجديدة
+
+                            </label>
+
+                            <select id="status"
+                                    name="status"
+                                    class="form-select form-select-lg">
+
+                                @if (Model.Status ==
+                                                                SmartServiceManagement.Models.Enums.RequestStatus.Pending)
+                                {
+                                    <option value="Pending" selected>
+                                        معلقة
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="Pending">
+                                        معلقة
+                                    </option>
+                                }
+
+
+                                @if (Model.Status ==
+                                                                SmartServiceManagement.Models.Enums.RequestStatus.Accepted)
+                                {
+                                    <option value="Accepted" selected>
+                                        مقبولة
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="Accepted">
+                                        مقبولة
+                                    </option>
+                                }
+
+
+                                @if (Model.Status ==
+                                                                SmartServiceManagement.Models.Enums.RequestStatus.InProgress)
+                                {
+                                    <option value="InProgress" selected>
+                                        قيد التنفيذ
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="InProgress">
+                                        قيد التنفيذ
+                                    </option>
+                                }
+
+
+                                @if (Model.Status ==
+                                                                SmartServiceManagement.Models.Enums.RequestStatus.Completed)
+                                {
+                                    <option value="Completed" selected>
+                                        مكتملة
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="Completed">
+                                        مكتملة
+                                    </option>
+                                }
+
+
+                                @if (Model.Status ==
+                                                                SmartServiceManagement.Models.Enums.RequestStatus.Cancelled)
+                                {
+                                    <option value="Cancelled" selected>
+                                        ملغاة
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="Cancelled">
+                                        ملغاة
+                                    </option>
+                                }
+
+                            </select>
+
+                            <div class="form-text">
+                                اختر الحالة المناسبة للطلب.
+                            </div>
+
+                        </div>
+
+
+                        <!-- Status Information -->
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+
+                                <div class="border rounded p-3 h-100">
+
+                                    <div class="d-flex align-items-start">
+
+                                        <i class="fas fa-clock text-warning fs-4 me-3"></i>
+
+                                        <div>
+
+                                            <h6 class="fw-bold">
+                                                معلقة
+                                            </h6>
+
+                                            <p class="text-muted small mb-0">
+                                                الطلب بانتظار المراجعة أو القبول.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <div class="border rounded p-3 h-100">
+
+                                    <div class="d-flex align-items-start">
+
+                                        <i class="fas fa-check text-primary fs-4 me-3"></i>
+
+                                        <div>
+
+                                            <h6 class="fw-bold">
+                                                مقبولة
+                                            </h6>
+
+                                            <p class="text-muted small mb-0">
+                                                تم قبول الطلب من الإدارة أو مزود الخدمة.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <div class="border rounded p-3 h-100">
+
+                                    <div class="d-flex align-items-start">
+
+                                        <i class="fas fa-spinner text-info fs-4 me-3"></i>
+
+                                        <div>
+
+                                            <h6 class="fw-bold">
+                                                قيد التنفيذ
+                                            </h6>
+
+                                            <p class="text-muted small mb-0">
+                                                العمل على تنفيذ الخدمة جارٍ حاليًا.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <div class="border rounded p-3 h-100">
+
+                                    <div class="d-flex align-items-start">
+
+                                        <i class="fas fa-circle-check text-success fs-4 me-3"></i>
+
+                                        <div>
+
+                                            <h6 class="fw-bold">
+                                                مكتملة
+                                            </h6>
+
+                                            <p class="text-muted small mb-0">
+                                                تم الانتهاء من تنفيذ الخدمة.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <div class="border rounded p-3">
+
+                                    <div class="d-flex align-items-start">
+
+                                        <i class="fas fa-times text-danger fs-4 me-3"></i>
+
+                                        <div>
+
+                                            <h6 class="fw-bold">
+                                                ملغاة
+                                            </h6>
+
+                                            <p class="text-muted small mb-0">
+                                                تم إلغاء طلب الخدمة.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Footer -->
+                    <div class="card-footer bg-white border-0 py-3">
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a asp-area="Admin"
+                               asp-controller="ServiceRequests"
+                               asp-action="Index"
+                               class="btn btn-light">
+
+                                إلغاء
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+
+                                <i class="fas fa-save me-1"></i>
+
+                                حفظ التغييرات
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Request Summary -->
+            <div class="col-xl-4">
+
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-header bg-white border-0 py-3">
+
+                        <h5 class="fw-bold mb-0">
+
+                            <i class="fas fa-file-invoice text-primary me-2"></i>
+
+                            ملخص الطلب
+
+                        </h5>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <!-- Request -->
+                        <div class="mb-4">
+
+                            <small class="text-muted d-block mb-1">
+                                رقم الطلب
+                            </small>
+
+                            <h5 class="fw-bold text-primary mb-0">
+                                #@Model.RequestId
+                            </h5>
+
+                        </div>
+
+
+                        <!-- Customer -->
+                        <div class="mb-4">
+
+                            <small class="text-muted d-block mb-1">
+                                العميل
+                            </small>
+
+                            <div class="d-flex align-items-center">
+
+                                <div class="rounded-circle bg-primary
+                                        bg-opacity-10 text-primary
+                                        d-flex align-items-center
+                                        justify-content-center me-2"
+                                     style="width:42px;height:42px;">
+
+                                    <i class="fas fa-user"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <div class="fw-semibold">
+                                        @(Model.Customer?.FullName ?? "غير معروف")
+                                    </div>
+
+                                    <small class="text-muted">
+                                        @(Model.Customer?.Email ?? "")
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Service -->
+                        <div class="mb-4">
+
+                            <small class="text-muted d-block mb-1">
+                                الخدمة
+                            </small>
+
+                            <div class="d-flex align-items-center">
+
+                                <div class="rounded-circle bg-warning
+                                        bg-opacity-10 text-warning
+                                        d-flex align-items-center
+                                        justify-content-center me-2"
+                                     style="width:42px;height:42px;">
+
+                                    <i class="fas fa-screwdriver-wrench"></i>
+
+                                </div>
+
+                                <div class="fw-semibold">
+
+                                    @(Model.Service?.ServiceName ?? "غير معروف")
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Request Date -->
+                        <div class="mb-4">
+                            <small class="text-muted d-block mb-1">
+                                تاريخ الطلب
+                            </small>
+
+                            <span class="fw-semibold">
+                                <i class="far fa-calendar text-primary me-1"></i>
+
+                                @Model.RequestDate.ToLocalTime().ToString("dd/MM/yyyy - hh:mm tt")
+                            </span>
+                        </div>
+
+                        <!-- Preferred Date -->
+                        <div class="mb-4">
+
+                            <small class="text-muted d-block mb-1">
+                                التاريخ المفضل
+                            </small>
+
+                            @if (Model.PreferredDate.HasValue)
+                            {
+                                <span class="fw-semibold">
+
+                                    <i class="far fa-calendar-check text-success me-1"></i>
+
+                                    @Model.PreferredDate.Value.ToLocalTime().ToString("dd/MM/yyyy")
+
+                                    <span class="text-muted ms-1">
+                                        @Model.PreferredDate.Value.ToLocalTime().ToString("hh:mm tt")
+                                    </span>
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    غير محدد
+                                </span>
+                            }
+
+                        </div>
+
+
+                        <!-- Description -->
+                        <div>
+
+                            <small class="text-muted d-block mb-1">
+                                وصف المشكلة
+                            </small>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.ProblemDescription))
+                            {
+                                <p class="small mb-0"
+                                   style="line-height:1.7;">
+
+                                    @Model.ProblemDescription
+
+                                </p>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">
+                                    لا يوجد وصف.
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>

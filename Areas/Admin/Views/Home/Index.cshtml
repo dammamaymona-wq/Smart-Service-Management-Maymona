@@ -1,0 +1,604 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<main class="app-main">
+
+    <!-- Content Header -->
+    <div class="app-content-header">
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <h1 class="mb-0 fs-3">لوحة التحكم</h1>
+                </div>
+
+                <div class="col-sm-6">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb float-sm-end">
+                            <li class="breadcrumb-item">
+                                <a href="#">الرئيسية</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                لوحة التحكم
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="app-content">
+        <div class="container-fluid">
+
+            <!-- Statistics -->
+            <div class="row">
+
+                <!-- Total Requests -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-primary">
+
+                        <div class="inner">
+                            <h3>@ViewBag.TotalRequests</h3>             
+                            <p>إجمالي طلبات الخدمة</p>
+                        </div>
+
+                        <svg class="small-box-icon"
+                             fill="currentColor"
+                             viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+
+                            <path d="M3 3h18v18H3z"></path>
+
+                        </svg>
+
+                        <a asp-area="Admin"
+                           asp-controller="ServiceRequests"
+                           asp-action="Index"
+                           class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+
+                            عرض الطلبات
+                            <i class="bi bi-arrow-left-circle"></i>
+
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- Pending Requests -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-warning">
+
+                        <div class="inner">
+                            <h3>@ViewBag.PendingRequests</h3>       
+                            <p>الطلبات قيد الانتظار</p>
+                        </div>
+
+                        <svg class="small-box-icon"
+                             fill="currentColor"
+                             viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+
+                            <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm1 11h-5v-2h3V6h2z"></path>
+
+                        </svg>
+
+                        <a href="#"
+                           class="small-box-footer link-dark link-underline-opacity-0 link-underline-opacity-50-hover">
+
+                            عرض الطلبات
+                            <i class="bi bi-arrow-left-circle"></i>
+
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- In Progress -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-info">
+
+                        <div class="inner">
+                            <h3>@ViewBag.InProgressRequests</h3>
+                            <p>طلبات قيد التنفيذ</p>
+                        </div>
+
+                        <svg class="small-box-icon"
+                             fill="currentColor"
+                             viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+
+                            <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z"></path>
+
+                        </svg>
+
+                        <a href="#"
+                           class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+
+                            متابعة الطلبات
+                            <i class="bi bi-arrow-left-circle"></i>
+
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- Completed -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-success">
+
+                        <div class="inner">
+                            <h3>@ViewBag.CompletedRequests</h3>
+                            <p>الطلبات المكتملة</p>
+                        </div>
+
+                        <svg class="small-box-icon"
+                             fill="currentColor"
+                             viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+
+                            <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm-1 15-5-5 1.5-1.5L11 13l5.5-5.5L18 9z"></path>
+
+                        </svg>
+
+                        <a href="#"
+                           class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+
+                            عرض المكتمل
+                            <i class="bi bi-arrow-left-circle"></i>
+
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- Main Dashboard Row -->
+            <!-- Main Dashboard Row -->
+            <div class="row">
+
+                <!-- Left Side -->
+                <div class="col-lg-7 connectedSortable">
+
+                    <!-- Service Requests -->
+                    <div class="card mb-4">
+
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                نظرة عامة على طلبات الخدمات
+                            </h3>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="row text-center">
+
+                                <!-- Pending Requests -->
+                                <div class="col-md-4 mb-4">
+
+                                    <div class="p-3">
+
+                                        <i class="bi bi-hourglass-split fs-1 text-warning"></i>
+
+                                        <h4 class="mt-2">
+                                            @ViewBag.PendingRequests
+                                        </h4>
+
+                                        <p class="text-muted mb-0">
+                                            طلبات قيد الانتظار
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- In Progress Requests -->
+                                <div class="col-md-4 mb-4">
+
+                                    <div class="p-3">
+
+                                        <i class="bi bi-arrow-repeat fs-1 text-info"></i>
+
+                                        <h4 class="mt-2">
+                                            @ViewBag.InProgressRequests
+                                        </h4>
+
+                                        <p class="text-muted mb-0">
+                                            طلبات قيد التنفيذ
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Completed Requests -->
+                                <div class="col-md-4 mb-4">
+
+                                    <div class="p-3">
+
+                                        <i class="bi bi-check-circle fs-1 text-success"></i>
+
+                                        <h4 class="mt-2">
+                                            @ViewBag.CompletedRequests
+                                        </h4>
+
+                                        <p class="text-muted mb-0">
+                                            طلبات مكتملة
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <hr />
+
+
+                            <div class="text-center py-3">
+
+                                <i class="bi bi-tools fs-1 text-primary"></i>
+
+                                <h4 class="mt-3">
+                                    إدارة الخدمات بسهولة
+                                </h4>
+
+                                <p class="text-muted">
+                                    يوفر نظام Smart Service منصة متكاملة
+                                    لإدارة الخدمات وطلبات العملاء ومزودي الخدمة
+                                    بطريقة سهلة ومنظمة.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Notifications -->
+                    <div class="card direct-chat direct-chat-primary mb-4">
+
+                        <div class="card-header">
+
+                            <h3 class="card-title">
+                                آخر الإشعارات
+                            </h3>
+
+                            <div class="card-tools">
+
+                                <span class="badge text-bg-primary">
+                                    3
+                                </span>
+
+                                <button type="button"
+                                        class="btn btn-tool"
+                                        data-lte-toggle="card-collapse"
+                                        aria-label="Collapse card">
+
+                                    <i data-lte-icon="expand"
+                                       class="bi bi-plus-lg"></i>
+
+                                    <i data-lte-icon="collapse"
+                                       class="bi bi-dash-lg"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="card-body">
+
+                            <div class="direct-chat-messages"
+                                 role="log"
+                                 tabindex="0"
+                                 aria-label="Notifications">
+
+                                <!-- Notification 1 -->
+                                <div class="direct-chat-msg">
+
+                                    <div class="direct-chat-infos clearfix">
+
+                                        <span class="direct-chat-name float-start">
+                                            Smart Service
+                                        </span>
+
+                                        <span class="direct-chat-timestamp float-end">
+                                            اليوم
+                                        </span>
+
+                                    </div>
+
+                                    <div class="direct-chat-text">
+                                        تم استلام طلب خدمة جديد.
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Notification 2 -->
+                                <div class="direct-chat-msg end">
+
+                                    <div class="direct-chat-infos clearfix">
+
+                                        <span class="direct-chat-name float-end">
+                                            نظام Smart Service
+                                        </span>
+
+                                        <span class="direct-chat-timestamp float-start">
+                                            اليوم
+                                        </span>
+
+                                    </div>
+
+                                    <div class="direct-chat-text">
+                                        تم تحديث حالة أحد طلبات الخدمة.
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Notification 3 -->
+                                <div class="direct-chat-msg">
+
+                                    <div class="direct-chat-infos clearfix">
+
+                                        <span class="direct-chat-name float-start">
+                                            Smart Service
+                                        </span>
+
+                                        <span class="direct-chat-timestamp float-end">
+                                            أمس
+                                        </span>
+
+                                    </div>
+
+                                    <div class="direct-chat-text">
+                                        لديك إشعار جديد يحتاج إلى المراجعة.
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="card-footer">
+
+                            <div class="text-center">
+
+                                <a asp-area="Admin"
+                                   asp-controller="Notifications"
+                                   asp-action="Index"
+                                   class="btn btn-primary">
+
+                                    عرض جميع الإشعارات
+                                    <i class="bi bi-bell ms-1"></i>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Right Side -->
+                <div class="col-lg-5 connectedSortable">
+
+                    <!-- System Information -->
+                    <div class="card text-white bg-primary bg-gradient border-primary mb-4">
+
+                        <div class="card-header border-0">
+
+                            <h3 class="card-title">
+                                Smart Service
+                            </h3>
+
+                        </div>
+
+
+                        <div class="card-body">
+
+                            <div class="text-center py-3">
+
+                                <i class="bi bi-building-gear"
+                                   style="font-size: 70px;">
+                                </i>
+
+                                <h4 class="mt-3">
+                                    منصة إدارة الخدمات الذكية
+                                </h4>
+
+                                <p>
+                                    منصة تربط العملاء بمزودي الخدمات
+                                    وتوفر طريقة سهلة لإرسال الطلبات
+                                    ومتابعتها وإدارتها.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="card-footer border-0">
+
+                            <div class="row">
+
+                                <div class="col-4 text-center">
+
+                                    <i class="bi bi-person-check fs-3"></i>
+
+                                    <div>
+                                        العملاء
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-4 text-center">
+
+                                    <i class="bi bi-person-gear fs-3"></i>
+
+                                    <div>
+                                        مزودو الخدمة
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-4 text-center">
+
+                                    <i class="bi bi-tools fs-3"></i>
+
+                                    <div>
+                                        الخدمات
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Quick Actions -->
+                    <div class="card mb-4">
+
+                        <div class="card-header">
+
+                            <h3 class="card-title">
+                                الوصول السريع
+                            </h3>
+
+                        </div>
+
+
+                        <div class="card-body">
+
+                            <div class="d-grid gap-2">
+
+                                <!-- Service Requests -->
+                                <a asp-area="Admin"
+                                   asp-controller="ServiceRequests"
+                                   asp-action="Index"
+                                   class="btn btn-outline-primary">
+
+                                    <i class="bi bi-list-check me-2"></i>
+                                    طلبات الخدمات
+
+                                </a>
+
+
+                                <!-- Services -->
+                                <a asp-area="Admin"
+                                   asp-controller="Services"
+                                   asp-action="Index"
+                                   class="btn btn-outline-success">
+
+                                    <i class="bi bi-tools me-2"></i>
+                                    إدارة الخدمات
+
+                                </a>
+
+
+                                <!-- Notifications -->
+                                <a asp-area="Admin"
+                                   asp-controller="Notifications"
+                                   asp-action="Index"
+                                   class="btn btn-outline-warning">
+
+                                    <i class="bi bi-bell me-2"></i>
+                                    الإشعارات
+
+                                </a>
+
+
+                                <!-- Providers -->
+                                <a asp-area="Admin"
+                                   asp-controller="Providers"
+                                   asp-action="Index"
+                                   class="btn btn-outline-info">
+
+                                    <i class="bi bi-people me-2"></i>
+                                    مزودو الخدمة
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- System Features -->
+                    <div class="card mb-4">
+
+                        <div class="card-header">
+
+                            <h3 class="card-title">
+                                مميزات النظام
+                            </h3>
+
+                        </div>
+
+
+                        <div class="card-body">
+
+                            <ul class="list-group list-group-flush">
+
+                                <li class="list-group-item">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    إدارة الخدمات
+                                </li>
+
+                                <li class="list-group-item">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    إدارة طلبات العملاء
+                                </li>
+
+                                <li class="list-group-item">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    إدارة مزودي الخدمة
+                                </li>
+
+                                <li class="list-group-item">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    نظام الإشعارات
+                                </li>
+
+                                <li class="list-group-item">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    متابعة حالة الطلبات
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+</main>

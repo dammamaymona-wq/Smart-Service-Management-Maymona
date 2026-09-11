@@ -1,0 +1,605 @@
+﻿@using System.Globalization
+@model SmartServiceManagement.Models.ViewModels.UserDetailsViewModel
+
+@{
+    ViewData["Title"] = "تفاصيل المستخدم";
+
+    var userName = string.IsNullOrWhiteSpace(Model?.FullName)
+        ? "مستخدم غير محدد"
+        : Model.FullName;
+
+    var profileImage = string.IsNullOrWhiteSpace(Model?.ProfileImage)
+        ? Url.Content("~/dist/assets/img/user2-160x160.jpg")
+        : Url.Content(Model.ProfileImage);
+
+    var roles = Model?.Roles?.ToList()
+        ?? new List<string>();
+}
+
+<div class="user-details-page" dir="rtl">
+    <div class="container-fluid px-3 px-md-4 px-xl-5 py-4">
+
+        <!-- Breadcrumb -->
+        <div class="details-breadcrumb mb-4">
+            <a asp-action="Index">
+                <i class="bi bi-people"></i>
+                إدارة المستخدمين
+            </a>
+
+            <i class="bi bi-chevron-left"></i>
+
+            <span>تفاصيل المستخدم</span>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-9">
+
+                <!-- Page Header -->
+                <div class="details-page-header mb-4">
+                    <div>
+                        <h1>
+                            تفاصيل المستخدم
+                        </h1>
+
+                        <p>
+                            عرض البيانات الأساسية والأدوار الخاصة بالمستخدم.
+                        </p>
+                    </div>
+
+                    <span class="user-status-badge">
+                        <i class="bi bi-person-check"></i>
+                        حساب مسجل
+                    </span>
+                </div>
+
+                <!-- Main Card -->
+                <div class="user-details-card">
+
+                    <!-- Card Header -->
+                    <div class="user-card-header">
+                        <div class="user-header-info">
+                            <img src="@profileImage"
+                                 alt="@userName"
+                                 class="user-profile-image" />
+
+                            <div>
+                                <span class="header-label">
+                                    بيانات الحساب
+                                </span>
+
+                                <h2>
+                                    @userName
+                                </h2>
+
+                                <small>
+                                    <i class="bi bi-envelope"></i>
+                                    @(Model?.Email ?? "البريد الإلكتروني غير محدد")
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="header-user-icon">
+                            <i class="bi bi-person-vcard"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="user-card-body">
+
+                        <div class="section-title">
+                            <span class="section-title-icon">
+                                <i class="bi bi-info-circle"></i>
+                            </span>
+
+                            <div>
+                                <h3>
+                                    المعلومات الشخصية
+                                </h3>
+
+                                <p>
+                                    البيانات المسجلة في النظام
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="details-grid">
+
+                            <!-- Full Name -->
+                            <div class="detail-item">
+                                <span class="detail-icon">
+                                    <i class="bi bi-person"></i>
+                                </span>
+
+                                <div>
+                                    <span class="detail-label">
+                                        الاسم الكامل
+                                    </span>
+
+                                    <strong>
+                                        @userName
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="detail-item">
+                                <span class="detail-icon">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+
+                                <div>
+                                    <span class="detail-label">
+                                        البريد الإلكتروني
+                                    </span>
+
+                                    <strong dir="ltr">
+                                        @(Model?.Email ?? "غير محدد")
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="detail-item">
+                                <span class="detail-icon">
+                                    <i class="bi bi-telephone"></i>
+                                </span>
+
+                                <div>
+                                    <span class="detail-label">
+                                        رقم الهاتف
+                                    </span>
+
+                                    <strong dir="ltr">
+                                        @(string.IsNullOrWhiteSpace(Model?.PhoneNumber)
+                                                                                ? "غير محدد"
+                                                                                : Model.PhoneNumber)
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <!-- Created Date -->
+                            <div class="detail-item">
+                                <span class="detail-icon">
+                                    <i class="bi bi-calendar3"></i>
+                                </span>
+
+                                <div>
+                                    <span class="detail-label">
+                                        تاريخ التسجيل
+                                    </span>
+
+                                    <strong>
+                                        @(Model.CreatedAt
+                                                                                .ToString("dd/MM/yyyy - hh:mm tt", CultureInfo.InvariantCulture))
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Roles Section -->
+                        <div class="roles-section">
+                            <div class="section-title">
+                                <span class="section-title-icon roles-icon">
+                                    <i class="bi bi-shield-check"></i>
+                                </span>
+
+                                <div>
+                                    <h3>
+                                        الأدوار الحالية
+                                    </h3>
+
+                                    <p>
+                                        الصلاحيات والأدوار المسندة لهذا المستخدم
+                                    </p>
+                                </div>
+                            </div>
+
+                            @if (roles.Any())
+                            {
+                                <div class="roles-list">
+                                    @foreach (var role in roles)
+                                    {
+                                        <span class="role-badge">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            @role
+                                        </span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-roles">
+                                    <i class="bi bi-shield-slash"></i>
+
+                                    <span>
+                                        لا توجد أدوار مسندة لهذا المستخدم
+                                    </span>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="user-card-footer">
+
+                        <a asp-action="Index"
+                           class="back-btn">
+
+                            <i class="bi bi-arrow-right"></i>
+                            عودة للقائمة
+                        </a>
+
+                        <a asp-action="Edit"
+                           asp-route-id="@Model.Id"
+                           class="edit-user-btn">
+
+                            <i class="bi bi-pencil-square"></i>
+                            تعديل البيانات
+                        </a>
+
+                    </div>
+                </div>
+
+                <p class="details-footer-note">
+                    يمكنك تعديل بيانات المستخدم من خلال زر تعديل البيانات.
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .user-details-page {
+        min-height: 100vh;
+        background: radial-gradient( circle at top right, rgba(13, 110, 253, .08), transparent 30% ), linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
+        color: #172b4d;
+    }
+
+    .details-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+        .details-breadcrumb a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+            text-decoration: none;
+            transition: color .2s ease;
+        }
+
+            .details-breadcrumb a:hover {
+                color: #0d6efd;
+            }
+
+        .details-breadcrumb > i {
+            color: #b7c0ce;
+            font-size: 10px;
+        }
+
+    .details-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+        .details-page-header h1 {
+            margin: 0 0 6px;
+            color: #172b4d;
+            font-size: clamp(25px, 4vw, 32px);
+            font-weight: 800;
+            letter-spacing: -.5px;
+        }
+
+        .details-page-header p {
+            margin: 0;
+            color: #718096;
+            font-size: 13px;
+        }
+
+    .user-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 999px;
+        padding: 9px 14px;
+        color: #19713a;
+        background: #e4f7e9;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .user-details-card {
+        overflow: hidden;
+        border: 1px solid rgba(20, 37, 63, .07);
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 15px 45px rgba(20, 37, 63, .09);
+    }
+
+    .user-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 26px 30px;
+        color: #fff;
+        background: linear-gradient(135deg, #0d6efd, #1557b0);
+    }
+
+    .user-header-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
+    }
+
+    .user-profile-image {
+        width: 76px;
+        height: 76px;
+        flex: 0 0 76px;
+        border: 4px solid rgba(255, 255, 255, .35);
+        border-radius: 50%;
+        object-fit: cover;
+        background: #fff;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, .14);
+    }
+
+    .header-label {
+        display: block;
+        margin-bottom: 4px;
+        color: rgba(255, 255, 255, .72);
+        font-size: 11px;
+    }
+
+    .user-card-header h2 {
+        overflow: hidden;
+        margin: 0 0 7px;
+        font-size: 22px;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .user-card-header small {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: rgba(255, 255, 255, .82);
+        font-size: 12px;
+    }
+
+    .header-user-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 52px;
+        width: 52px;
+        height: 52px;
+        border: 1px solid rgba(255, 255, 255, .25);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, .14);
+        font-size: 23px;
+    }
+
+    .user-card-body {
+        padding: 30px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 20px;
+    }
+
+    .section-title-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        color: #0d6efd;
+        background: #eaf2ff;
+        font-size: 16px;
+    }
+
+    .section-title h3 {
+        margin: 0 0 4px;
+        color: #172b4d;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .section-title p {
+        margin: 0;
+        color: #8a96a8;
+        font-size: 11px;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid #edf1f5;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+        padding: 15px;
+        border: 1px solid #edf1f5;
+        border-radius: 13px;
+        background: #fbfcfe;
+    }
+
+    .detail-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        color: #246bce;
+        background: #eaf2ff;
+        font-size: 16px;
+    }
+
+    .detail-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #94a3b8;
+        font-size: 10px;
+    }
+
+    .detail-item strong {
+        display: block;
+        overflow: hidden;
+        color: #293b55;
+        font-size: 13px;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .roles-section {
+        padding-top: 28px;
+    }
+
+    .roles-icon {
+        color: #218838;
+        background: #e4f7e9;
+    }
+
+    .roles-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 9px 13px;
+        color: #1556a3;
+        background: #e4efff;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .role-badge i {
+            color: #218838;
+            font-size: 13px;
+        }
+
+    .empty-roles {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 14px;
+        border: 1px dashed #dce3ec;
+        border-radius: 12px;
+        color: #8a96a8;
+        background: #fbfcfe;
+        font-size: 12px;
+    }
+
+        .empty-roles i {
+            color: #a7b1bf;
+            font-size: 17px;
+        }
+
+    .user-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 20px 30px;
+        border-top: 1px solid #edf1f5;
+        background: #fbfcfe;
+    }
+
+    .back-btn,
+    .edit-user-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 10px;
+        padding: 11px 18px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+
+    .back-btn {
+        border: 1px solid #dce3ec;
+        color: #52647d;
+        background: #fff;
+    }
+
+        .back-btn:hover {
+            color: #293b55;
+            background: #f0f3f7;
+        }
+
+    .edit-user-btn {
+        color: #fff;
+        background: linear-gradient(135deg, #f0a500, #d88700);
+        box-shadow: 0 8px 18px rgba(216, 135, 0, .2);
+    }
+
+        .edit-user-btn:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(216, 135, 0, .3);
+        }
+
+    .details-footer-note {
+        margin: 16px 0 0;
+        color: #8a96a8;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    @@media (max-width: 767.98px) {
+        .user-card-header {
+            align-items: flex-start;
+            padding: 22px 20px;
+        }
+
+        .user-card-body {
+            padding: 24px 18px;
+        }
+
+        .header-user-icon {
+            display: none;
+        }
+
+        .user-profile-image {
+            width: 62px;
+            height: 62px;
+            flex-basis: 62px;
+        }
+
+        .user-card-header h2 {

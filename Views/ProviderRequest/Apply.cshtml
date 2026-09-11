@@ -1,0 +1,665 @@
+﻿@model SmartServiceManagement.Models.Provider
+
+@{
+    ViewData["Title"] = "طلب الانضمام كمزود خدمة";
+}
+
+<div class="provider-join-page" dir="rtl">
+    <div class="container py-5">
+
+        <div class="row justify-content-center">
+            <div class="col-xl-8 col-lg-9">
+
+                <!-- Page Intro -->
+                <div class="provider-intro text-center mb-4">
+                    <div class="intro-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+
+                    <h1>
+                        انضم إلينا كمزود خدمة
+                    </h1>
+
+                    <p>
+                        شارك خبرتك وخدماتك مع عملائنا ووسّع نطاق عملك من خلال منصة Smart Service.
+                    </p>
+                </div>
+
+                <!-- Main Card -->
+                <div class="provider-card">
+
+                    <!-- Card Header -->
+                    <div class="provider-card-header">
+                        <div class="header-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+
+                        <div>
+                            <h2>
+                                بيانات مزود الخدمة
+                            </h2>
+
+                            <p>
+                                أدخل بياناتك الأساسية وسيتم مراجعة طلبك من قبل فريقنا.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="provider-card-body">
+
+                        <form asp-controller="ProviderRequest"
+                              asp-action="Apply"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="validation-summary alert alert-danger"
+                                 role="alert">
+                            </div>
+
+                            <!-- Basic Information -->
+                            <div class="form-section">
+                                <div class="section-heading">
+                                    <span class="section-number">01</span>
+
+                                    <div>
+                                        <h3>المعلومات الأساسية</h3>
+                                        <p>أدخل اسمك أو اسم شركتك وبيانات التواصل.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Company Name -->
+                                <div class="mb-4">
+                                    <label asp-for="CompanyName"
+                                           class="form-label custom-label">
+
+                                        <i class="fas fa-building"></i>
+                                        اسم الشركة أو الاسم المهني
+                                        <span class="required-mark">*</span>
+                                    </label>
+
+                                    <input asp-for="CompanyName"
+                                           class="form-control custom-input"
+                                           placeholder="أدخل اسم الشركة أو الاسم التجاري" />
+
+                                    <span asp-validation-for="CompanyName"
+                                          class="text-danger validation-message">
+                                    </span>
+                                </div>
+
+                                <div class="row g-4">
+
+                                    <!-- Contact Number -->
+                                    <div class="col-md-6">
+                                        <label asp-for="ContactNumber"
+                                               class="form-label custom-label">
+
+                                            <i class="fas fa-phone"></i>
+                                            رقم التواصل
+                                        </label>
+
+                                        <input asp-for="ContactNumber"
+                                               class="form-control custom-input"
+                                               placeholder="مثال: 059xxxxxxx"
+                                               inputmode="tel" />
+
+                                        <span asp-validation-for="ContactNumber"
+                                              class="text-danger validation-message">
+                                        </span>
+                                    </div>
+
+                                    <!-- City -->
+                                    <div class="col-md-6">
+                                        <label asp-for="City"
+                                               class="form-label custom-label">
+
+                                            <i class="fas fa-location-dot"></i>
+                                            المدينة
+                                        </label>
+
+                                        <input asp-for="City"
+                                               class="form-control custom-input"
+                                               placeholder="أدخل مدينتك" />
+
+                                        <span asp-validation-for="City"
+                                              class="text-danger validation-message">
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- Experience Information -->
+                            <div class="form-section">
+                                <div class="section-heading">
+                                    <span class="section-number">02</span>
+
+                                    <div>
+                                        <h3>الخبرة والخدمات</h3>
+                                        <p>عرّفنا بخبرتك والخدمات التي تقدمها.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Experience Years -->
+                                <div class="mb-4">
+                                    <label asp-for="ExperienceYears"
+                                           class="form-label custom-label">
+
+                                        <i class="fas fa-award"></i>
+                                        سنوات الخبرة
+                                    </label>
+
+                                    <div class="input-with-suffix">
+                                        <input asp-for="ExperienceYears"
+                                               type="number"
+                                               min="0"
+                                               max="80"
+                                               class="form-control custom-input"
+                                               placeholder="مثال: 3" />
+
+                                        <span>
+                                            سنة
+                                        </span>
+                                    </div>
+
+                                    <span asp-validation-for="ExperienceYears"
+                                          class="text-danger validation-message">
+                                    </span>
+                                </div>
+
+                                <!-- Description -->
+                                <div class="mb-4">
+                                    <label asp-for="Description"
+                                           class="form-label custom-label">
+
+                                        <i class="fas fa-align-left"></i>
+                                        نبذة عن الخدمات المقدمة
+                                    </label>
+
+                                    <textarea asp-for="Description"
+                                              class="form-control custom-input custom-textarea"
+                                              rows="5"
+                                              maxlength="1000"
+                                              placeholder="اكتب وصفاً مختصراً للخدمات التي تقدمها وخبرتك في المجال..."></textarea>
+
+                                    <div class="field-hint">
+                                        <span>
+                                            اذكر أهم الخدمات التي تقدمها ومجال تخصصك.
+                                        </span>
+
+                                        <span>
+                                            الحد الأقصى 1000 حرف
+                                        </span>
+                                    </div>
+
+                                    <span asp-validation-for="Description"
+                                          class="text-danger validation-message">
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Logo Upload -->
+                            <div class="form-section">
+                                <div class="section-heading">
+                                    <span class="section-number">03</span>
+
+                                    <div>
+                                        <h3>الهوية البصرية</h3>
+                                        <p>أضف شعارك ليظهر بشكل أفضل للعملاء.</p>
+                                    </div>
+                                </div>
+
+                                <label for="logoFile"
+                                       class="form-label custom-label">
+
+                                    <i class="fas fa-image"></i>
+                                    شعار الشركة
+                                </label>
+
+                                <div class="upload-box">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-arrow-up"></i>
+                                    </div>
+
+                                    <div class="upload-content">
+                                        <label for="logoFile"
+                                               class="upload-title">
+
+                                            اختر شعار الشركة
+                                        </label>
+
+                                        <p>
+                                            يمكنك رفع صورة بصيغة JPG أو PNG أو WEBP
+                                        </p>
+                                    </div>
+
+                                    <input id="logoFile"
+                                           name="logoFile"
+                                           type="file"
+                                           accept=".jpg,.jpeg,.png,.webp"
+                                           class="upload-input" />
+                                </div>
+
+                                <small class="upload-hint">
+                                    الحجم المفضل للصورة 500 × 500 بكسل، وبحجم لا يتجاوز 2MB.
+                                </small>
+                            </div>
+
+                            <!-- Submit Area -->
+                            <div class="submit-area">
+                                <div class="security-note">
+                                    <i class="fas fa-shield-halved"></i>
+
+                                    <span>
+                                        بياناتك محمية وسيتم استخدامها لمراجعة طلب الانضمام فقط.
+                                    </span>
+                                </div>
+
+                                <button type="submit"
+                                        class="submit-btn">
+
+                                    <i class="fas fa-paper-plane"></i>
+                                    إرسال طلب الانضمام
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+                <p class="page-footer-note">
+                    بعد إرسال الطلب، سيقوم فريقنا بمراجعته والتواصل معك في أقرب وقت.
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .provider-join-page {
+        min-height: 100vh;
+        background: radial-gradient(circle at top right, rgba(13, 110, 253, .08), transparent 30%), linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
+        color: #172b4d;
+    }
+
+    .provider-intro {
+        max-width: 650px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    .intro-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 18px;
+        border-radius: 22px;
+        color: #0d6efd;
+        background: #e7f0ff;
+        box-shadow: 0 12px 25px rgba(13, 110, 253, .12);
+        font-size: 28px;
+    }
+
+    .provider-intro h1 {
+        margin-bottom: 10px;
+        color: #172b4d;
+        font-size: clamp(25px, 4vw, 34px);
+        font-weight: 800;
+        letter-spacing: -.6px;
+    }
+
+    .provider-intro p {
+        margin: 0;
+        color: #718096;
+        font-size: 14px;
+        line-height: 1.8;
+    }
+
+    .provider-card {
+        overflow: hidden;
+        border: 1px solid rgba(20, 37, 63, .07);
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 15px 45px rgba(20, 37, 63, .09);
+    }
+
+    .provider-card-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 24px 28px;
+        color: #fff;
+        background: linear-gradient(135deg, #0d6efd, #1557b0);
+    }
+
+    .header-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        border: 1px solid rgba(255, 255, 255, .25);
+        border-radius: 15px;
+        background: rgba(255, 255, 255, .15);
+        font-size: 20px;
+    }
+
+    .provider-card-header h2 {
+        margin: 0 0 5px;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .provider-card-header p {
+        margin: 0;
+        color: rgba(255, 255, 255, .78);
+        font-size: 12px;
+    }
+
+    .provider-card-body {
+        padding: 30px;
+    }
+
+    .validation-summary:empty {
+        display: none;
+    }
+
+    .form-section {
+        margin-bottom: 32px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid #edf1f5;
+    }
+
+        .form-section:last-of-type {
+            margin-bottom: 0;
+        }
+
+    .section-heading {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .section-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        color: #0d6efd;
+        background: #eaf2ff;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .section-heading h3 {
+        margin: 0 0 4px;
+        color: #172b4d;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .section-heading p {
+        margin: 0;
+        color: #8a96a8;
+        font-size: 12px;
+    }
+
+    .custom-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 9px;
+        color: #293b55;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+        .custom-label i {
+            width: 16px;
+            color: #0d6efd;
+            text-align: center;
+        }
+
+    .required-mark {
+        color: #dc3545;
+        font-size: 15px;
+    }
+
+    .custom-input {
+        min-height: 46px;
+        border: 1px solid #dce3ec;
+        border-radius: 10px;
+        padding: 11px 14px;
+        color: #293b55;
+        background-color: #fbfcfe;
+        font-size: 13px;
+        transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+
+        .custom-input::placeholder {
+            color: #a7b1bf;
+        }
+
+        .custom-input:focus {
+            border-color: #86b7fe;
+            background-color: #fff;
+            box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .12);
+        }
+
+    .custom-textarea {
+        min-height: 125px;
+        resize: vertical;
+        line-height: 1.8;
+    }
+
+    .input-with-suffix {
+        position: relative;
+    }
+
+        .input-with-suffix .custom-input {
+            padding-left: 55px;
+        }
+
+        .input-with-suffix > span {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8a96a8;
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+    .field-hint {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 7px;
+        color: #8a96a8;
+        font-size: 11px;
+    }
+
+    .validation-message {
+        display: block;
+        margin-top: 6px;
+        font-size: 11px;
+    }
+
+    .upload-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        min-height: 92px;
+        padding: 18px;
+        overflow: hidden;
+        border: 1.5px dashed #b9cceb;
+        border-radius: 13px;
+        background: #f8fbff;
+        cursor: pointer;
+        transition: border-color .2s ease, background-color .2s ease;
+    }
+
+        .upload-box:hover {
+            border-color: #0d6efd;
+            background: #f1f7ff;
+        }
+
+    .upload-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 46px;
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        color: #0d6efd;
+        background: #e7f0ff;
+        font-size: 19px;
+    }
+
+    .upload-title {
+        display: block;
+        margin-bottom: 4px;
+        color: #246bce;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .upload-content p {
+        margin: 0;
+        color: #8995a7;
+        font-size: 11px;
+    }
+
+    .upload-input {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        opacity: 0;
+    }
+
+    .upload-hint {
+        display: block;
+        margin-top: 8px;
+        color: #8a96a8;
+        font-size: 11px;
+    }
+
+    .submit-area {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding-top: 4px;
+    }
+
+    .security-note {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #8a96a8;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+        .security-note i {
+            color: #37a779;
+            font-size: 16px;
+        }
+
+    .submit-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-width: 190px;
+        border: 0;
+        border-radius: 10px;
+        padding: 12px 20px;
+        color: #fff;
+        background: linear-gradient(135deg, #0d6efd, #1557b0);
+        box-shadow: 0 9px 20px rgba(13, 110, 253, .22);
+        font-size: 13px;
+        font-weight: 700;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 13px 25px rgba(13, 110, 253, .3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+    .page-footer-note {
+        margin: 18px 0 0;
+        color: #8a96a8;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    @@media (max-width: 767.98px) {
+        .provider-join-page .container {
+            padding-right: 14px;
+            padding-left: 14px;
+        }
+
+        .provider-card-header {
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .provider-card-body {
+            padding: 22px 18px;
+        }
+
+        .submit-area {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .security-note {
+            justify-content: center;
+            text-align: center;
+        }
+
+        .submit-btn {
+            width: 100%;
+        }
+
+        .field-hint {
+            flex-direction: column;
+            gap: 3px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .custom-input,
+        .upload-box,
+        .submit-btn {
+            transition: none;
+        }
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

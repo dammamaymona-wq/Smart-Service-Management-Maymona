@@ -1,0 +1,794 @@
+﻿@model SmartServiceManagement.Models.SystemSettings
+
+@{
+    ViewData["Title"] = "الإعدادات";
+}
+
+<div class="settings-page" dir="rtl">
+    <div class="container-fluid px-3 px-md-4 px-xl-5 py-4">
+
+        <!-- Page Header -->
+        <div class="settings-header mb-4">
+            <div>
+                <div class="settings-breadcrumb">
+                    <i class="bi bi-speedometer2"></i>
+                    لوحة التحكم
+                    <i class="bi bi-chevron-left"></i>
+                    <span>الإعدادات</span>
+                </div>
+
+                <h1>
+                    <i class="bi bi-gear-fill"></i>
+                    إعدادات النظام
+                </h1>
+
+                <p>
+                    إدارة إعدادات نظام Smart Service Management من مكان واحد.
+                </p>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show settings-alert"
+                 role="alert">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                <span>
+                    @TempData["SuccessMessage"]
+                </span>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="إغلاق">
+                </button>
+            </div>
+        }
+
+        <form asp-area="Admin"
+              asp-controller="Settings"
+              asp-action="Index"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <!-- General Settings -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-section-icon icon-primary">
+                        <i class="bi bi-building"></i>
+                    </div>
+
+                    <div>
+                        <h2>الإعدادات العامة</h2>
+                        <p>معلومات النظام وبيانات التواصل.</p>
+                    </div>
+                </div>
+
+                <div class="settings-card-body">
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+                            <label asp-for="SystemName"
+                                   class="settings-label">
+                                <i class="bi bi-window"></i>
+                                اسم النظام
+                            </label>
+
+                            <input asp-for="SystemName"
+                                   class="form-control settings-input"
+                                   placeholder="Smart Service Management" />
+
+                            <span asp-validation-for="SystemName"
+                                  class="text-danger validation-text">
+                            </span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Logo"
+                                   class="settings-label">
+                                <i class="bi bi-image"></i>
+                                رابط أو مسار الشعار
+                            </label>
+
+                            <input asp-for="Logo"
+                                   class="form-control settings-input"
+                                   placeholder="/images/logo.png" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="ContactEmail"
+                                   class="settings-label">
+                                <i class="bi bi-envelope"></i>
+                                البريد الإلكتروني
+                            </label>
+
+                            <input asp-for="ContactEmail"
+                                   type="email"
+                                   class="form-control settings-input"
+                                   placeholder="info@example.com" />
+
+                            <span asp-validation-for="ContactEmail"
+                                  class="text-danger validation-text">
+                            </span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="ContactPhone"
+                                   class="settings-label">
+                                <i class="bi bi-telephone"></i>
+                                رقم الهاتف
+                            </label>
+
+                            <input asp-for="ContactPhone"
+                                   class="form-control settings-input"
+                                   placeholder="059xxxxxxx"
+                                   inputmode="tel" />
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="ContactAddress"
+                                   class="settings-label">
+                                <i class="bi bi-geo-alt"></i>
+                                العنوان
+                            </label>
+
+                            <input asp-for="ContactAddress"
+                                   class="form-control settings-input"
+                                   placeholder="العنوان الرسمي للشركة" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="TimeZone"
+                                   class="settings-label">
+                                <i class="bi bi-globe2"></i>
+                                المنطقة الزمنية
+                            </label>
+
+                            <select asp-for="TimeZone"
+                                    class="form-select settings-input">
+
+                                <option value="Asia/Jerusalem">
+                                    فلسطين - Asia/Jerusalem
+                                </option>
+
+                                <option value="Asia/Riyadh">
+                                    السعودية - Asia/Riyadh
+                                </option>
+
+                                <option value="Asia/Amman">
+                                    الأردن - Asia/Amman
+                                </option>
+
+                                <option value="UTC">
+                                    UTC
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="DateFormat"
+                                   class="settings-label">
+                                <i class="bi bi-calendar3"></i>
+                                صيغة التاريخ
+                            </label>
+
+                            <select asp-for="DateFormat"
+                                    class="form-select settings-input">
+
+                                <option value="dd/MM/yyyy">
+                                    31/12/2026
+                                </option>
+
+                                <option value="MM/dd/yyyy">
+                                    12/31/2026
+                                </option>
+
+                                <option value="yyyy-MM-dd">
+                                    2026-12-31
+                                </option>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Settings -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-section-icon icon-warning">
+                        <i class="bi bi-tools"></i>
+                    </div>
+
+                    <div>
+                        <h2>إعدادات الخدمات والطلبات</h2>
+                        <p>التحكم بالقواعد الأساسية للطلبات والملفات.</p>
+                    </div>
+                </div>
+
+                <div class="settings-card-body">
+                    <div class="row g-4">
+
+                        <div class="col-md-4">
+                            <label asp-for="Currency"
+                                   class="settings-label">
+                                <i class="bi bi-cash-coin"></i>
+                                العملة
+                            </label>
+
+                            <select asp-for="Currency"
+                                    class="form-select settings-input">
+
+                                <option value="JOD">JOD - دينار أردني</option>
+                                <option value="USD">USD - دولار</option>
+                                <option value="SAR">SAR - ريال سعودي</option>
+                                <option value="ILS">ILS - شيكل</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="DefaultRequestStatus"
+                                   class="settings-label">
+                                <i class="bi bi-clipboard-check"></i>
+                                الحالة الافتراضية للطلب
+                            </label>
+
+                            <select asp-for="DefaultRequestStatus"
+                                    class="form-select settings-input">
+
+                                <option value="Pending">
+                                    معلقة
+                                </option>
+
+                                <option value="Accepted">
+                                    مقبولة
+                                </option>
+
+                                <option value="InProgress">
+                                    قيد التنفيذ
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="MaxUploadSize"
+                                   class="settings-label">
+                                <i class="bi bi-file-earmark-arrow-up"></i>
+                                الحد الأقصى للملف MB
+                            </label>
+
+                            <input asp-for="MaxUploadSize"
+                                   type="number"
+                                   min="1"
+                                   max="100"
+                                   class="form-control settings-input" />
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="AllowedFileTypes"
+                                   class="settings-label">
+                                <i class="bi bi-file-earmark-check"></i>
+                                أنواع الملفات المسموحة
+                            </label>
+
+                            <input asp-for="AllowedFileTypes"
+                                   class="form-control settings-input"
+                                   placeholder=".jpg,.jpeg,.png,.pdf" />
+
+                            <div class="settings-hint">
+                                افصل بين الامتدادات باستخدام الفاصلة.
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Email Settings -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-section-icon icon-info">
+                        <i class="bi bi-bell-fill"></i>
+                    </div>
+
+                    <div>
+                        <h2>البريد والإشعارات</h2>
+                        <p>إعدادات إرسال إشعارات البريد الإلكتروني.</p>
+                    </div>
+                </div>
+
+                <div class="settings-card-body">
+
+                    <div class="settings-switch mb-4">
+                        <div class="switch-icon">
+                            <i class="bi bi-envelope-check"></i>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <label asp-for="EnableEmailNotifications"
+                                   class="form-check-label">
+                                تفعيل إشعارات البريد الإلكتروني
+                            </label>
+
+                            <small>
+                                سيتم إرسال رسائل النظام عبر البريد الإلكتروني.
+                            </small>
+                        </div>
+
+                        <input asp-for="EnableEmailNotifications"
+                               class="form-check-input"
+                               role="switch" />
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+                            <label asp-for="SmtpHost"
+                                   class="settings-label">
+                                <i class="bi bi-server"></i>
+                                SMTP Host
+                            </label>
+
+                            <input asp-for="SmtpHost"
+                                   class="form-control settings-input"
+                                   placeholder="smtp.example.com"
+                                   dir="ltr" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SmtpPort"
+                                   class="settings-label">
+                                <i class="bi bi-hdd-network"></i>
+                                SMTP Port
+                            </label>
+
+                            <input asp-for="SmtpPort"
+                                   type="number"
+                                   class="form-control settings-input"
+                                   placeholder="587"
+                                   dir="ltr" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SenderEmail"
+                                   class="settings-label">
+                                <i class="bi bi-send"></i>
+                                البريد المرسل
+                            </label>
+
+                            <input asp-for="SenderEmail"
+                                   type="email"
+                                   class="form-control settings-input"
+                                   placeholder="no-reply@example.com"
+                                   dir="ltr" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SmtpUsername"
+                                   class="settings-label">
+                                <i class="bi bi-person-badge"></i>
+                                SMTP Username
+                            </label>
+
+                            <input asp-for="SmtpUsername"
+                                   class="form-control settings-input"
+                                   dir="ltr" />
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Account Settings -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-section-icon icon-danger">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+
+                    <div>
+                        <h2>الحسابات والأمان</h2>
+                        <p>التحكم بتسجيل المستخدمين الجدد.</p>
+                    </div>
+                </div>
+
+                <div class="settings-card-body">
+
+                    <div class="settings-switch mb-4">
+                        <div class="switch-icon">
+                            <i class="bi bi-person-plus"></i>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <label asp-for="AllowCustomerRegistration"
+                                   class="form-check-label">
+                                السماح بتسجيل العملاء الجدد
+                            </label>
+
+                            <small>
+                                السماح للمستخدمين بإنشاء حسابات جديدة.
+                            </small>
+                        </div>
+
+                        <input asp-for="AllowCustomerRegistration"
+                               class="form-check-input"
+                               role="switch" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DefaultRegistrationRole"
+                               class="settings-label">
+                            <i class="bi bi-person-check"></i>
+                            الدور الافتراضي للتسجيل
+                        </label>
+
+                        <select asp-for="DefaultRegistrationRole"
+                                class="form-select settings-input">
+
+                            <option value="Customer">
+                                Customer - عميل
+                            </option>
+
+                            <option value="Provider">
+                                Provider - مزود خدمة
+                            </option>
+                        </select>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Maintenance Settings -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-section-icon icon-secondary">
+                        <i class="bi bi-wrench-adjustable-circle-fill"></i>
+                    </div>
+
+                    <div>
+                        <h2>النظام والصيانة</h2>
+                        <p>التحكم بوضع الصيانة والرسالة الظاهرة للمستخدمين.</p>
+                    </div>
+                </div>
+
+                <div class="settings-card-body">
+
+                    <div class="settings-switch mb-4">
+                        <div class="switch-icon">
+                            <i class="bi bi-cone-striped"></i>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <label asp-for="MaintenanceMode"
+                                   class="form-check-label">
+                                تفعيل وضع الصيانة
+                            </label>
+
+                            <small>
+                                منع المستخدمين من استخدام النظام مؤقتًا.
+                            </small>
+                        </div>
+
+                        <input asp-for="MaintenanceMode"
+                               class="form-check-input"
+                               role="switch" />
+                    </div>
+
+                    <div>
+                        <label asp-for="MaintenanceMessage"
+                               class="settings-label">
+                            <i class="bi bi-chat-left-text"></i>
+                            رسالة الصيانة
+                        </label>
+
+                        <textarea asp-for="MaintenanceMessage"
+                                  class="form-control settings-input"
+                                  rows="4"
+                                  placeholder="اكتب رسالة تظهر للمستخدم أثناء الصيانة"></textarea>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Save Button -->
+            <div class="settings-actions mb-5">
+                <button type="submit"
+                        class="save-settings-btn">
+
+                    <i class="bi bi-check2-circle"></i>
+                    حفظ الإعدادات
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<style>
+    .settings-page {
+        min-height: 100vh;
+        background: radial-gradient( circle at top right, rgba(13, 110, 253, .08), transparent 30% ), linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
+        color: #172b4d;
+    }
+
+    .settings-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .settings-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+        .settings-breadcrumb i:first-child {
+            color: #0d6efd;
+        }
+
+        .settings-breadcrumb i:last-of-type {
+            color: #b7c0ce;
+            font-size: 10px;
+        }
+
+    .settings-header h1 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 7px;
+        color: #172b4d;
+        font-size: clamp(25px, 4vw, 34px);
+        font-weight: 800;
+    }
+
+        .settings-header h1 i {
+            color: #0d6efd;
+        }
+
+    .settings-header p {
+        margin: 0;
+        color: #718096;
+        font-size: 13px;
+    }
+
+    .settings-alert {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: 10px;
+    }
+
+    .settings-card {
+        overflow: hidden;
+        margin-bottom: 22px;
+        border: 1px solid rgba(20, 37, 63, .07);
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 8px 26px rgba(20, 37, 63, .06);
+    }
+
+    .settings-card-header {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 22px 25px;
+        border-bottom: 1px solid #edf1f5;
+        background: #fff;
+    }
+
+    .settings-section-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 43px;
+        width: 43px;
+        height: 43px;
+        border-radius: 13px;
+        font-size: 18px;
+    }
+
+    .icon-primary {
+        color: #0d6efd;
+        background: #eaf2ff;
+    }
+
+    .icon-warning {
+        color: #b7791f;
+        background: #fff4d6;
+    }
+
+    .icon-info {
+        color: #087f9e;
+        background: #def7ff;
+    }
+
+    .icon-danger {
+        color: #b42318;
+        background: #feeceb;
+    }
+
+    .icon-secondary {
+        color: #667085;
+        background: #edf0f3;
+    }
+
+    .settings-card-header h2 {
+        margin: 0 0 4px;
+        color: #172b4d;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .settings-card-header p {
+        margin: 0;
+        color: #8a96a8;
+        font-size: 11px;
+    }
+
+    .settings-card-body {
+        padding: 25px;
+    }
+
+    .settings-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        color: #293b55;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+        .settings-label i {
+            width: 16px;
+            color: #0d6efd;
+            text-align: center;
+        }
+
+    .settings-input {
+        min-height: 45px;
+        border: 1px solid #dce3ec;
+        border-radius: 9px;
+        color: #293b55;
+        background: #fbfcfe;
+        font-size: 13px;
+        transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+
+        .settings-input:focus {
+            border-color: #86b7fe;
+            background: #fff;
+            box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .12);
+        }
+
+    textarea.settings-input {
+        min-height: 100px;
+        resize: vertical;
+        line-height: 1.8;
+    }
+
+    .settings-hint {
+        margin-top: 7px;
+        color: #8a96a8;
+        font-size: 11px;
+    }
+
+    .validation-text {
+        display: block;
+        margin-top: 5px;
+        font-size: 11px;
+    }
+
+    .settings-switch {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 15px;
+        border: 1px solid #e6edf5;
+        border-radius: 13px;
+        background: #fbfcfe;
+    }
+
+    .switch-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 39px;
+        width: 39px;
+        height: 39px;
+        border-radius: 11px;
+        color: #0d6efd;
+        background: #eaf2ff;
+        font-size: 16px;
+    }
+
+    .settings-switch .form-check-label {
+        display: block;
+        margin-bottom: 3px;
+        color: #293b55;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .settings-switch small {
+        display: block;
+        color: #8a96a8;
+        font-size: 11px;
+    }
+
+    .settings-switch .form-check-input {
+        width: 42px;
+        height: 22px;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .settings-actions {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .save-settings-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-width: 180px;
+        border: 0;
+        border-radius: 10px;
+        padding: 12px 22px;
+        color: #fff;
+        background: linear-gradient(135deg, #0d6efd, #1557b0);
+        box-shadow: 0 9px 20px rgba(13, 110, 253, .22);
+        font-size: 13px;
+        font-weight: 700;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+        .save-settings-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 13px 25px rgba(13, 110, 253, .3);
+        }
+
+    @@media (max-width: 575.98px) {
+        .settings-card-header,
+        .settings-card-body {
+            padding: 20px 17px;
+        }
+
+        .settings-switch {
+            align-items: flex-start;
+        }
+
+            .settings-switch .form-check-input {
+                margin-right: auto;
+            }
+
+        .settings-actions {
+            display: block;
+        }
+
+        .save-settings-btn {
+            width: 100%;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .settings-input,
+        .save-settings-btn {
+            transition: none;
+        }
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

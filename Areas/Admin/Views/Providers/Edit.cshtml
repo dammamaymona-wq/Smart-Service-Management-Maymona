@@ -1,0 +1,206 @@
+﻿@model SmartServiceManagement.Models.Provider
+@{
+    ViewData["Title"] = "تعديل مزود الخدمة";
+}
+
+<h2 class="fw-bold mb-1">
+    <i class="fas fa-edit text-warning me-2"></i>
+    تعديل مزود الخدمة
+</h2>
+
+<p class="text-muted mb-0">
+    تعديل بيانات مزود الخدمة وشعاره
+</p>
+
+<div class="col-lg-8">
+    <div class="card shadow-sm border-0">
+
+        <!-- Header -->
+        <div class="card-header bg-dark py-3">
+            <h5 class="mb-0 text-white fw-bold">
+                <i class="fas fa-user-edit me-2"></i>
+                تعديل بيانات: @Model.CompanyName
+            </h5>
+        </div>
+
+        <form asp-action="Edit"
+              asp-route-id="@Model.ProviderId"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="ProviderId" />
+            <input type="hidden" asp-for="UserId" />
+            <input type="hidden" asp-for="Logo" />
+            <input type="hidden" asp-for="AverageRating" />
+            <div class="card-body p-4">
+
+                <!-- إظهار جميع الأخطاء لمعرفة سبب عدم الحفظ -->
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <!-- Logo -->
+                <div class="text-center mb-4">
+                    <div id="logoPreviewContainer"
+                         class="rounded-circle shadow-sm mx-auto mb-3 overflow-hidden d-flex align-items-center justify-content-center bg-light"
+                         style="width:120px; height:120px;">
+
+                        @if (!string.IsNullOrEmpty(Model.Logo))
+                        {
+                            <img src="@Model.Logo"
+                                 id="logoPreview"
+                                 class="w-100 h-100"
+                                 style="object-fit:cover;"
+                                 alt="@Model.CompanyName" />
+                        }
+                        else
+                        {
+                            <div id="defaultLogo">
+                                <i class="fas fa-user-tie fa-3x text-primary"></i>
+                            </div>
+
+                            <img src=""
+                                 id="logoPreview"
+                                 class="w-100 h-100 d-none"
+                                 style="object-fit:cover;"
+                                 alt="Logo Preview" />
+                        }
+
+                    </div>
+
+                    <div>
+                        <label for="logoFile" class="btn btn-outline-primary">
+                            <i class="fas fa-image me-1"></i>
+                            تغيير الشعار
+                        </label>
+
+                        <input type="file"
+                               id="logoFile"
+                               name="logoFile"
+                               class="d-none"
+                               accept="image/*" />
+                    </div>
+
+                    <small class="text-muted d-block mt-2">
+                        اختر صورة جديدة إذا أردت تغيير الشعار
+                    </small>
+                </div>
+
+                <!-- Company Name -->
+                <div class="mb-3">
+                    <label asp-for="CompanyName" class="form-label fw-bold">
+                        اسم الشركة
+                    </label>
+                    <input asp-for="CompanyName" class="form-control" />
+                    <span asp-validation-for="CompanyName" class="text-danger"></span>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-bold">
+                        الوصف
+                    </label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <!-- Experience -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ExperienceYears" class="form-label fw-bold">
+                            سنوات الخبرة
+                        </label>
+                        <input asp-for="ExperienceYears" type="number" min="0" class="form-control" />
+                        <span asp-validation-for="ExperienceYears" class="text-danger"></span>
+                    </div>
+
+                    <!-- Contact -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ContactNumber" class="form-label fw-bold">
+                            رقم التواصل
+                        </label>
+                        <input asp-for="ContactNumber" class="form-control" />
+                        <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- City -->
+                <div class="mb-3">
+                    <label asp-for="City" class="form-label fw-bold">
+                        المدينة
+                    </label>
+                    <input asp-for="City" class="form-control" />
+                    <span asp-validation-for="City" class="text-danger"></span>
+                </div>
+
+                <!-- Availability -->
+                <div class="form-check form-switch mb-3">
+                    <input asp-for="IsAvailable" class="form-check-input" type="checkbox" />
+                    <label asp-for="IsAvailable" class="form-check-label fw-bold">
+                        مزود الخدمة متاح
+                    </label>
+                </div>
+
+                <!-- Rating -->
+                <div class="alert alert-light border">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">
+                            <i class="fas fa-star text-warning me-1"></i>
+                            متوسط التقييم الحالي
+                        </span>
+                        <span class="fw-bold">
+                            @Model.AverageRating.ToString("0.0") / 5
+                        </span>
+                    </div>
+                    <small class="text-muted">
+                        يتم عرض التقييم الحالي فقط ولا يمكن تعديله من هذه الصفحة.
+                    </small>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer bg-white border-0 p-4">
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary px-4">
+                        <i class="fas fa-arrow-right me-1"></i>
+                        إلغاء
+                    </a>
+
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="fas fa-save me-1"></i>
+                        حفظ التغييرات
+                    </button>
+                </div>
+            </div>
+
+        </form>
+        <script>
+            document.getElementById('logoFile').addEventListener('change', function (event) {
+
+                const file = event.target.files[0];
+
+                if (!file) {
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+
+                    const preview = document.getElementById('logoPreview');
+                    const defaultLogo = document.getElementById('defaultLogo');
+
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+
+                    if (defaultLogo) {
+                        defaultLogo.classList.add('d-none');
+                    }
+                };
+
+                reader.readAsDataURL(file);
+            });
+        </script>
+    </div>
+</div>
